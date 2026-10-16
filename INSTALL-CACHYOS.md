@@ -30,7 +30,7 @@ Conky uses `output_backend = 'x11'`. The supplied config is compact enough for
 and omits unavailable update data. The broken upstream Cairo hook is disabled.
 
 Conky 1.25.2 has a startup font-cache warning. Build official v1.25.4 for the
-theme at `~/.local/lib/nothingos/conky`; `start_conky.sh` selects it without
+theme at `~/.local/lib/nothingos/conky`; the user service selects it without
 replacing the distribution package. Build command used:
 
 ```sh
@@ -40,8 +40,19 @@ cmake -S conky-source -B conky-build -DCMAKE_BUILD_TYPE=Release \
 cmake --build conky-build -j 4
 ```
 
-Use GNOME `.desktop` autostart entries pointing to `conky/start_conky.sh` and
-`eww/start-eww.sh`. Do not launch a second Conky while one is already running.
+Install `conky/nothingos-conky.service` under `~/.config/systemd/user/` and
+run `systemctl --user daemon-reload` and `systemctl --user enable nothingos-conky.service`.
+`conky/start_conky.sh` imports the display environment and starts that service.
+GNOME `.desktop` autostart invokes the same launcher; repeated starts reuse one
+process. The service restarts on failure and stops with the graphical session.
+
+Install `conky/conky-launcher.sh` as executable `~/.local/bin/conky`. With no
+arguments it starts the service; explicit arguments use the fixed binary.
+Link `~/.conkyrc` to `~/.config/conky/nothing-phone-conky.conf` so the distribution
+binary also finds the X11 config when an existing shell still caches its path.
+Use `rehash` in such a zsh session to pick up the new launcher.
+
+Keep the Eww `.desktop` autostart pointing to `eww/start-eww.sh`.
 The two-Conky launcher is an optional alternative for X11; it is not autostarted.
 
 Weather data: [Open-Meteo](https://open-meteo.com/),

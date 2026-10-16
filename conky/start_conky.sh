@@ -1,7 +1,10 @@
 #!/bin/sh
 set -eu
-config="${XDG_CONFIG_HOME:-$HOME/.config}/conky/nothing-phone-conky.conf"
-# Use the fixed upstream release for this theme only; leave pacman files intact.
-binary="$HOME/.local/lib/nothingos/conky"
-if [ ! -x "$binary" ]; then binary=/usr/bin/conky; fi
-exec "$binary" -c "$config"
+# Repeated launches reuse the same monitored instance.
+if [ -n "${DISPLAY:-}" ]; then
+    systemctl --user import-environment DISPLAY
+fi
+if [ -n "${XAUTHORITY:-}" ]; then
+    systemctl --user import-environment XAUTHORITY
+fi
+exec systemctl --user start nothingos-conky.service
