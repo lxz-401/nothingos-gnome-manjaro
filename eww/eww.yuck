@@ -76,27 +76,27 @@
   :class "widget-window"
   (spotify-widget))
 
-;; Quote of the Day Widget
-(defpoll QUOTE :interval "10s" "shuf -n 1 ~/.config/eww/quotes.txt")
+;; Persistent reminders; keep the existing window name for screenshot integration.
+(defpoll REMINDERS :initial "[]" :interval "10s" "scripts/reminders.py list")
 
 (defwidget quote-widget []
-  (box :class "nothing-quote" 
-       :orientation "v" 
-       :space-evenly false 
-       :halign "center" 
-       :valign "center"
-    (box :class "quote-content" 
-         :orientation "v" 
-         :space-evenly false 
-         :halign "center" 
-         :valign "center"
-      (label :class "quote-icon" :text "󰃬") ;; Quote icon
-      (label :class "quote-text" :text QUOTE :wrap true :limit-width 32)
-    )
-  )
-)
+  (box :class "nothing-reminders" :orientation "v" :space-evenly false :spacing 6
+    (box :class "reminders-header" :space-evenly false
+      (label :text "Eslatmalar" :hexpand true :xalign 0)
+      (button :class "reminder-add" :tooltip "Eslatma qo‘shish"
+              :onclick "scripts/reminders.py add >/dev/null 2>&1 &" "+"))
+    (label :class "reminders-empty" :visible {arraylength(REMINDERS) == 0}
+           :text "Eslatma qo‘shish uchun + ni bosing" :wrap true :limit-width 30)
+    (scroll :height 80 :visible {arraylength(REMINDERS) > 0} :vexpand false :hscroll false :vscroll true
+      (box :orientation "v" :space-evenly false :spacing 4
+        (for reminder in REMINDERS
+          (box :class "reminder-row" :space-evenly false :spacing 6
+            (label :class "reminder-text" :text "${reminder.text}"
+                   :tooltip "${reminder.text}" :hexpand true :xalign 0 :limit-width 25)
+            (button :class "reminder-delete" :tooltip "Eslatmani o‘chirish"
+                    :timeout "5s" :onclick "scripts/reminders.py delete ${reminder.id}" "×")))))))
 
-;; Quote of the Day Window
+;; Reminders window; legacy ID retained for startup/screenshot compatibility
 (defwindow quote-of-the-day
   :monitor 0
   :geometry (geometry :x "10px"

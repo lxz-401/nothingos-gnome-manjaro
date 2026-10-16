@@ -15,7 +15,7 @@ This is a **NothingOS-inspired desktop build** for **Manjaro Linux (GNOME editio
 - ⚙️ **GNOME Shell Theme** — Clean, flat, and monochrome with subtle animations  
 - 🎨 **GTK Theme** — Matches the Shell theme for a unified look  
 - 🖥 **Alacritty Config** — Transparency, blur, and font matching NothingOS style  
-- 🧱 **Eww Widgets** — Interactive status bar with time, date, weather, system stats, and music  
+- 🧱 **Eww Widgets** — Interactive status bar with time, date, weather, system stats, music, and editable reminders
 - 📈 **Conky Setup** — Optional low-resource alternative to Eww    
 - 🖼 **Wallpapers** — Custom and curated Nothing-style backgrounds  
 

@@ -113,3 +113,20 @@ until fresh login, when the patched extension restores it automatically.
 The user confirmed the panel works without freezes in that temporary state.
 A live retest with the new code after login is still needed. Browser/GPU flags,
 Conky, Eww artwork and the theme are unchanged.
+
+## Desktop reminders
+
+The former quote card is now **Eslatmalar**. Click **+** to enter a note in a
+small Zenity dialog; click **×** beside a note to delete that note. Long lists
+scroll inside the card and hovering a truncated note shows the full text.
+Install `zenity` and Python 3, and copy `scripts/reminders.py` as an executable
+alongside the updated `eww.yuck` and `eww.css`. The existing `quote-of-the-day`
+window ID is retained for autostart and screenshot integration.
+
+Notes are stored in `${XDG_DATA_HOME:-~/.local/share}/nothingos/reminders.json`,
+with locked, atomic writes. They persist across logout/restart and are user
+data, not repository files. `quotes.txt` is preserved but no longer polled.
+For command-line use: `scripts/reminders.py list`, `scripts/reminders.py add
+"note text"`, or `scripts/reminders.py delete ID`. Widget changes update
+immediately, with a 10-second poll as a fallback. Run `python3 tests/test_reminders.py`
+for persistence, concurrent updates and text-handling checks.
