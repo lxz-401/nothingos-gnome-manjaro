@@ -130,3 +130,10 @@ For command-line use: `scripts/reminders.py list`, `scripts/reminders.py add
 "note text"`, or `scripts/reminders.py delete ID`. Widget changes update
 immediately, with a 10-second poll as a fallback. Run `python3 tests/test_reminders.py`
 for persistence, concurrent updates and text-handling checks.
+
+### AI agents
+
+Run `python3 agents/install.py` to install the noninteractive
+`nothingos-reminders` CLI, Codex skill and automatic remaining-work preference.
+Stable `--key` values prevent duplicate notes across retries. See
+[agent setup](agents/README.md) for commands, scope and backup behavior.

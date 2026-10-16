@@ -1,0 +1,4 @@
+#!/bin/sh
+# Agent interface is always noninteractive; widget dialogs use reminders.py directly.
+set -eu
+exec /usr/bin/python3 "${XDG_CONFIG_HOME:-$HOME/.config}/eww/scripts/reminders.py" --json "$@"

@@ -29,11 +29,14 @@ def read(path):
                 or not re.fullmatch('[0-9a-f]{32}', item['id']) or item['id'] in ids
                 or not isinstance(item.get('text'), str) or not item['text'].strip()):
             raise ValueError('Invalid reminders file; existing data was not changed')
+        if 'key' in item and (not isinstance(item['key'], str) or not item['key'].strip()
+                              or len(item['key']) > 200):
+            raise ValueError('Invalid reminder key; existing data was not changed')
         ids.add(item['id'])
     return items
 
 
-def mutate(path, action, value):
+def mutate(path, action, value, key=None):
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.with_suffix('.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
@@ -41,12 +44,28 @@ def mutate(path, action, value):
         if action == 'add':
             text = value.strip()
             if not text:
-                return
+                return {'changed': False, 'item': None}
             if len(text) > 2000:
                 raise ValueError('Eslatma 2000 belgidan oshmasligi kerak')
-            items.append({'id': uuid.uuid4().hex, 'text': text})
+            if key is not None and (not key.strip() or len(key) > 200):
+                raise ValueError('Reminder key must contain 1–200 characters')
+            item = next((item for item in items if key is not None and item.get('key') == key), None)
+            if item is not None:
+                if item['text'] == text:
+                    return {'changed': False, 'item': item}
+                item['text'] = text
+            else:
+                item = {'id': uuid.uuid4().hex, 'text': text}
+                if key is not None:
+                    item['key'] = key
+                items.append(item)
+            result = {'changed': True, 'item': item}
         else:
+            removed = next((item for item in items if item['id'] == value), None)
+            if removed is None:
+                return {'changed': False, 'item': None}
             items = [item for item in items if item['id'] != value]
+            result = {'changed': True, 'item': removed}
         temporary = None
         try:
             with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', dir=path.parent, delete=False) as file:
@@ -58,6 +77,7 @@ def mutate(path, action, value):
         finally:
             if temporary:
                 temporary.unlink(missing_ok=True)
+        return result
 
 
 def prompt(path):
@@ -87,7 +107,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['list', 'add', 'delete'])
     parser.add_argument('value', nargs='?')
+    parser.add_argument('--key', help='Stable task key: update the matching note instead of duplicating it')
+    parser.add_argument('--json', action='store_true', help='Noninteractive machine-readable results')
     args = parser.parse_args()
+    if args.key is not None and args.action != 'add':
+        parser.error('--key is only supported for add')
+    if args.json and args.action != 'list' and args.value is None:
+        parser.error('Noninteractive add/delete requires a value')
     path = data_path()
     try:
         if args.action == 'list':
@@ -100,10 +126,16 @@ def main():
                     return 0
             if value is None:
                 parser.error('delete requires an ID')
-            mutate(path, args.action, value)
-            refresh(path)
+            if args.json and args.action == 'add' and not value.strip():
+                raise ValueError('Reminder text must not be empty')
+            result = mutate(path, args.action, value, args.key)
+            if result['changed']:
+                refresh(path)
+            if args.json:
+                print(json.dumps(result, ensure_ascii=False))
     except (OSError, ValueError) as error:
-        print(f'Reminders: {error}', file=sys.stderr)
+        message = json.dumps({'error': str(error)}, ensure_ascii=False) if args.json else f'Reminders: {error}'
+        print(message, file=sys.stderr)
         return 1
     return 0
 

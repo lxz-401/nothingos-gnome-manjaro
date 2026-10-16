@@ -66,6 +66,42 @@ class ReminderTests(unittest.TestCase):
             self.assertIsNone(notes.prompt(self.path))
         self.assertEqual(notes.read(self.path), [])
 
+    def test_agent_key_is_idempotent_and_update_preserves_id(self):
+        first = notes.mutate(self.path, 'add', 'Review login', key='project:task:login')
+        repeat = notes.mutate(self.path, 'add', 'Review login', key='project:task:login')
+        self.assertFalse(repeat['changed'])
+        changed = notes.mutate(self.path, 'add', 'Verify new session', key='project:task:login')
+        self.assertTrue(changed['changed'])
+        self.assertEqual(first['item']['id'], changed['item']['id'])
+        self.assertEqual(len(notes.read(self.path)), 1)
+
+    def test_concurrent_agent_retries_create_only_one_note(self):
+        env = dict(os.environ, XDG_DATA_HOME=self.temp.name)
+        code = "import runpy,sys; m=runpy.run_path(sys.argv[1]); m['mutate'](m['data_path'](), 'add', 'Same task', 'project:task:next')"
+        children = [subprocess.Popen([sys.executable, '-c', code, str(SCRIPT)], env=env)
+                    for _ in range(12)]
+        for child in children: self.assertEqual(child.wait(timeout=10), 0)
+        items = notes.read(Path(self.temp.name) / 'nothingos/reminders.json')
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]['key'], 'project:task:next')
+
+    def test_empty_agent_note_returns_json_error(self):
+        result = subprocess.run([sys.executable, str(SCRIPT), '--json', 'add', '  '],
+                                capture_output=True, text=True, timeout=5)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn('error', json.loads(result.stderr))
+
+    def test_agent_delete_is_idempotent(self):
+        first = notes.mutate(self.path, 'add', 'Review')
+        self.assertTrue(notes.mutate(self.path, 'delete', first['item']['id'])['changed'])
+        self.assertFalse(notes.mutate(self.path, 'delete', first['item']['id'])['changed'])
+
+    def test_json_mode_without_text_does_not_open_a_dialog(self):
+        result = subprocess.run([sys.executable, str(SCRIPT), '--json', 'add'],
+                                capture_output=True, text=True, timeout=5)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn('requires a value', result.stderr)
+
     def test_refresh_sends_json_as_single_argument_without_shell(self):
         notes.mutate(self.path, 'add', '"${HOME}" $(exit 1)')
         with patch.object(notes.subprocess, 'run') as run:
