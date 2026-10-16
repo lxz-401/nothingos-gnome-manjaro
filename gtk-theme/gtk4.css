@@ -40,13 +40,14 @@ window.solid-csd {
 headerbar {
   background-color: rgba(0, 0, 0, 0.9);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 8px;
-  min-height: 48px;
+  padding: 0 6px;
+  min-height: 46px;
 }
 
 headerbar button {
   border-radius: 20px;
-  padding: 6px 12px;
+  padding: 4px 8px;
+  min-height: 24px;
   background-color: transparent;
   color: @fg_color;
 }
@@ -57,7 +58,7 @@ headerbar button:hover {
 
 headerbar button:active {
   background-color: @accent_bg_color;
-  color: @accent_color;
+  color: @accent_fg_color;
 }
 
 /* Buttons */
@@ -75,7 +76,7 @@ button:hover {
 
 button:active {
   background-color: @accent_bg_color;
-  color: @accent_color;
+  color: @accent_fg_color;
 }
 
 button.suggested-action {
@@ -173,7 +174,37 @@ list row:hover, sidebar row:hover {
 
 list row:selected, sidebar row:selected {
   background-color: @accent_bg_color;
-  color: @accent_color;
+  color: @accent_fg_color;
+}
+
+/* Preserve selection contrast for sidebar text and symbolic icons. */
+list row:selected label,
+list row:selected image,
+sidebar row:selected label,
+sidebar row:selected image {
+  color: inherit;
+}
+
+/* Keep file-manager navigation and titlebar controls compact. */
+.navigation-sidebar {
+  min-width: 220px;
+}
+
+.navigation-sidebar row {
+  min-height: 32px;
+  padding: 2px 8px;
+}
+
+headerbar button.image-button,
+headerbar windowcontrols button {
+  min-width: 24px;
+  min-height: 24px;
+  padding: 4px;
+}
+
+headerbar entry {
+  min-height: 24px;
+  padding: 4px 10px;
 }
 
 /* Scrollbars */
