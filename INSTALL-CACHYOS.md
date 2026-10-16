@@ -102,3 +102,12 @@ class/title unchanged for the screenshot integration. For smaller displays,
 reduce block widths and left margins before starting. The old
 `nothing-phone-conky.conf` remains an optional single-window configuration;
 do not launch it alongside the managed blocks.
+
+## YouTube hover preview freezes
+
+The optional Media Controls panel extension `2.4.5-gnome51` caused full-desktop
+freezes here when hovering YouTube previews. Disabling only its time slider did
+not fix it; disabling the extension did, confirmed by a user retest. Eww and
+Conky continue running. See [the scoped workaround](compatibility/media-controls/README.md)
+for the reversible disable script and restoration steps. Browser acceleration
+and GPU settings were left unchanged.
