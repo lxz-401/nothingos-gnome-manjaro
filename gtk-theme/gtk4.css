@@ -156,30 +156,30 @@ check:checked, radio:checked {
   color: black;
 }
 
-/* Lists and Sidebars */
-list, sidebar {
+/* Style navigation only; preference lists keep their native cards and spacing. */
+list.navigation-sidebar, sidebar {
   background-color: rgba(0, 0, 0, 0.7);
   color: @fg_color;
 }
 
-list row, sidebar row {
+.navigation-sidebar row, sidebar row {
   padding: 8px;
   border-radius: 8px;
   margin: 2px 4px;
 }
 
-list row:hover, sidebar row:hover {
+.navigation-sidebar row:hover, sidebar row:hover {
   background-color: rgba(255, 255, 255, 0.05);
 }
 
-list row:selected, sidebar row:selected {
+.navigation-sidebar row:selected, sidebar row:selected {
   background-color: @accent_bg_color;
   color: @accent_fg_color;
 }
 
 /* Preserve selection contrast for sidebar text and symbolic icons. */
-list row:selected label,
-list row:selected image,
+.navigation-sidebar row:selected label,
+.navigation-sidebar row:selected image,
 sidebar row:selected label,
 sidebar row:selected image {
   color: inherit;
