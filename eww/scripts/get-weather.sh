@@ -1,15 +1,8 @@
 #!/bin/bash
-# filepath: /home/username/.config/eww/scripts/get-weather.sh
-
-API_KEY="YOUR_API_KEY_HERE"
-CITY="Leuven"
-
-# Fetch weather data from WeatherAPI
-response=$(curl -s "http://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${CITY}&aqi=no")
-
-# Extract temperature and weather description
-temp=$(echo "$response" | jq '.current.temp_c' | xargs printf "%.0f") # Temperature in Celsius
-desc=$(echo "$response" | jq -r '.current.condition.text') # Weather description
-
-# Output the variables in a format Eww can directly use
-echo -e "WEATHER_TEMP=${temp}\nWEATHER_DESC=${desc}"
+# Set WEATHERAPI_KEY and WEATHER_CITY locally before enabling the weather window.
+if [[ -z ${WEATHERAPI_KEY:-} || -z ${WEATHER_CITY:-} ]]; then
+    printf 'WEATHER_TEMP=--\nWEATHER_DESC=Weather not configured\n'
+    exit 0
+fi
+response=$(curl --fail --silent --show-error --max-time 10 --get 'https://api.weatherapi.com/v1/current.json' --data-urlencode "key=$WEATHERAPI_KEY" --data-urlencode "q=$WEATHER_CITY" --data 'aqi=no') || exit 1
+jq -r 'if .current then "WEATHER_TEMP=\(.current.temp_c | round)\nWEATHER_DESC=\(.current.condition.text)" else error("Weather data unavailable") end' <<< "$response"

@@ -5,8 +5,8 @@
   margin: 0;
   padding: 0;
   font-family: "Inter", "SF Pro Display", "Roboto", sans-serif;
-  font-family: "Doto", sans-serif;
-  font-weight: 700;;
+  font-family: "NDOT 47 (inspired by NOTHING)", sans-serif;
+  font-weight: 700;
   background-color: transparent;
 }
 
@@ -156,7 +156,7 @@
   background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
   border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
   color: #ffffff;
-  margin-left: 0px
+  margin-left: 0px;
 }
 
 .day-number {

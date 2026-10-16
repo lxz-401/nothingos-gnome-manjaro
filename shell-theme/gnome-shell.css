@@ -1,24 +1,17 @@
 /* Nothing-inspired GNOME Shell Theme */
 
 /* Main colors */
-@define-color bg_color rgba(0, 0, 0, 0.85);
-@define-color fg_color #ffffff;
-@define-color accent_color #45ffbc;
-@define-color accent_bg_color rgba(69, 255, 188, 0.15);
-@define-color warning_color #fffa65;
-@define-color error_color #ff4545;
 
 /* Panel (top bar) */
 #panel {
-  background-color: @bg_color;
-  font-feature-settings: "tnum";
-  font-family: 'Nothing', sans-serif;
+  background-color: rgba(0, 0, 0, 0.85);
+  font-family: 'Inter', sans-serif;
   height: 32px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 #panel .panel-button {
-  color: @fg_color;
+  color: #ffffff;
   border-radius: 20px;
   padding: 0 12px;
 }
@@ -29,8 +22,8 @@
 
 #panel .panel-button:active, #panel .panel-button:overview,
 #panel .panel-button:focus, #panel .panel-button:checked {
-  background-color: @accent_bg_color;
-  color: @accent_color;
+  background-color: rgba(69, 255, 188, 0.15);
+  color: #45ffbc;
 }
 
 /* Overview */
@@ -40,7 +33,7 @@
 }
 
 .workspace-thumbnail-indicator {
-  border: 3px solid @accent_color;
+  border: 3px solid #45ffbc;
   border-radius: 2px;
 }
 
@@ -50,11 +43,11 @@
   padding: 8px 16px;
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: @fg_color;
+  color: #ffffff;
 }
 
 .search-entry:focus {
-  border-color: @accent_color;
+  border-color: #45ffbc;
   background-color: rgba(0, 0, 0, 0.7);
 }
 
@@ -71,13 +64,13 @@
 
 .app-well-app:active .overview-icon,
 .app-well-app:checked .overview-icon {
-  background-color: @accent_bg_color;
-  color: @accent_color;
+  background-color: rgba(69, 255, 188, 0.15);
+  color: #45ffbc;
 }
 
 /* Notifications */
 .notification-banner {
-  background-color: @bg_color;
+  background-color: rgba(0, 0, 0, 0.85);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -91,7 +84,7 @@
   border-radius: 20px;
   padding: 4px 12px;
   background-color: rgba(255, 255, 255, 0.1);
-  color: @fg_color;
+  color: #ffffff;
 }
 
 .notification-banner .notification-button:hover {
@@ -99,21 +92,21 @@
 }
 
 .notification-banner .notification-button:active {
-  background-color: @accent_bg_color;
-  color: @accent_color;
+  background-color: rgba(69, 255, 188, 0.15);
+  color: #45ffbc;
 }
 
 /* Calendar */
 .calendar {
   border-radius: 12px;
   padding: 8px;
-  background-color: @bg_color;
+  background-color: rgba(0, 0, 0, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .calendar-month-label {
   font-weight: bold;
-  color: @fg_color;
+  color: #ffffff;
 }
 
 .calendar-day-base {
@@ -127,21 +120,21 @@
 }
 
 .calendar-day-base:active {
-  background-color: @accent_bg_color;
-  color: @accent_color;
+  background-color: rgba(69, 255, 188, 0.15);
+  color: #45ffbc;
 }
 
 .calendar-today {
   font-weight: bold;
-  color: @accent_color;
-  background-color: @accent_bg_color;
+  color: #45ffbc;
+  background-color: rgba(69, 255, 188, 0.15);
 }
 
 /* Quick Settings */
 .quick-settings {
   padding: 16px;
   border-radius: 12px;
-  background-color: @bg_color;
+  background-color: rgba(0, 0, 0, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -156,23 +149,10 @@
 }
 
 .quick-settings .quick-toggle:active {
-  background-color: @accent_bg_color;
+  background-color: rgba(69, 255, 188, 0.15);
 }
 
 .quick-settings .quick-toggle:checked {
-  background-color: @accent_bg_color;
-  color: @accent_color;
-}
-
-/* Dot matrix pattern overlay for panels */
-.panel-corner,
-.quick-settings,
-.calendar,
-.notification-banner,
-.search-entry,
-#panel {
-  background-image: url("assets/dot-pattern.svg");
-  background-repeat: repeat;
-  background-size: 24px;
-  background-blend-mode: overlay;
+  background-color: rgba(69, 255, 188, 0.15);
+  color: #45ffbc;
 }

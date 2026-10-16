@@ -59,10 +59,6 @@ live_config_reload = true
 history = 10000
 multiplier = 3
 
-[terminal.shell]
-program = "/bin/bash"
-args = ["-c", "neofetch; exec bash"]
-
 [window]
 blur = true
 decorations = "none"

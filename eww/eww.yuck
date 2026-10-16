@@ -42,7 +42,7 @@
   (temp-widget))
 
 ;; Spotify Now Playing Widget
-(defpoll SPOTIFY_TRACK :interval "5s" "playerctl metadata --format '{{artist}} - {{title}}'")
+(defpoll SPOTIFY_TRACK :interval "5s" "playerctl metadata --format '{{artist}} - {{title}}' 2>/dev/null || echo 'No media playing'")
 
 (defwidget spotify-widget []
   (box :class "nothing-spotify" 
@@ -88,7 +88,6 @@
          :space-evenly false 
          :halign "center" 
          :valign "center"
-         :overflow "hidden"
       (label :class "quote-icon" :text "󰃬") ;; Quote icon
       (label :class "quote-text" :text QUOTE :wrap true)
     )

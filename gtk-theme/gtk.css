@@ -230,16 +230,3 @@ notebook > header > tabs > tab:checked {
   color: @accent_color;
   border-bottom: 2px solid @accent_color;
 }
-
-/* Dot matrix pattern overlay for certain elements */
-headerbar,
-button,
-entry,
-switch,
-list row:selected,
-sidebar row:selected {
-  background-image: url("assets/dot-pattern.svg");
-  background-repeat: repeat;
-  background-size: 24px;
-  background-blend-mode: overlay;
-}
