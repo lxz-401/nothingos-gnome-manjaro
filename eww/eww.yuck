@@ -35,8 +35,8 @@
                      :y "50px" ;; Moved down
                      :width "150px"
                      :height "150px")
-  :stacking "bg"
-  :windowtype "dock"
+  :stacking "bottom"
+  :windowtype "desktop"
   :sticky true
   :wm-ignore false
   :class "widget-window"
@@ -69,8 +69,8 @@
                      :y "50px" ;; Moved down
                      :width "150px"
                      :height "150px")
-  :stacking "bg"
-  :windowtype "dock"
+  :stacking "bottom"
+  :windowtype "desktop"
   :sticky true
   :wm-ignore false
   :class "widget-window"
@@ -103,8 +103,8 @@
                      :y "210px" ;; Moved down
                      :width "310px"
                      :height "150px")
-  :stacking "bg"
-  :windowtype "dock"
+  :stacking "bottom"
+  :windowtype "desktop"
   :sticky true
   :wm-ignore false
   :class "widget-window"
@@ -135,8 +135,8 @@
                      :y "370px" ;; Moved down
                      :width "150px"
                      :height "150px")
-  :stacking "bg"
-  :windowtype "dock"
+  :stacking "bottom"
+  :windowtype "desktop"
   :sticky true
   :wm-ignore false
   :class "widget-window"
@@ -162,8 +162,8 @@
                      :y "370px" ;; Moved down
                      :width "150px"
                      :height "150px")
-  :stacking "bg"
-  :windowtype "dock"
+  :stacking "bottom"
+  :windowtype "desktop"
   :sticky true
   :wm-ignore false
   :class "widget-window"
@@ -192,8 +192,8 @@
                      :y "370px" ;; Adjust position as needed
                      :width "150px"
                      :height "150px")
-  :stacking "bg"
-  :windowtype "dock"
+  :stacking "bottom"
+  :windowtype "desktop"
   :sticky true
   :wm-ignore false
   :class "widget-window"

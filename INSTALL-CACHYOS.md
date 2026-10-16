@@ -19,11 +19,23 @@ files, symlinks and their resolved contents before installing.
 ## Widgets on GNOME Wayland
 
 `eww/start-eww.sh` selects **both** the GTK X11 backend and Eww's X11 session
-path on GNOME Wayland. XWayland displays dock, sticky windows below other
+path on GNOME Wayland. XWayland displays desktop, sticky windows below other
 applications; no layer-shell support is needed. The launcher opens temperature,
 media, quote, date and weather windows. Toshkent weather uses Open-Meteo
 without an API key, with coordinates in `eww/weather.json`.
-No made-up weather, sensor or notification data is enabled.
+No made-up weather, sensor or notification data is enabled. Startup is serialized
+and waits for a ready daemon before opening windows. Explicit opens cannot spawn
+a second daemon. Startup output is kept in `~/.cache/eww/eww_nothingos.log`.
+
+Conky and Eww use the `desktop` window type without a separate `below` hint,
+so Mutter assigns the desktop layer itself. Keep Eww `wm-ignore=false` to retain
+normal compositor stacking instead of overlaying applications.
+
+GNOME's screenshot Window selector does not honor desktop/skip-taskbar exclusion.
+Install the version-pinned local fix in `gnome-extension/` and enable
+`nothingos-desktop-widgets@local` for the next login. The fix filters only these
+widget thumbnails; screen/area screenshots still show the desktop widgets.
+See `gnome-extension/README.md` for validation and reversal.
 
 Conky uses `output_backend = 'x11'`. The supplied config is compact enough for
 1920x1080, uses this machine's wlan0/enp7s0 interfaces, reads a real CPU sensor,

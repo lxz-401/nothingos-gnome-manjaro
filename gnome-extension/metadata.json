@@ -1,0 +1,7 @@
+{
+  "uuid": "nothingos-desktop-widgets@local",
+  "name": "NothingOS Desktop Widgets",
+  "description": "Keep NothingOS desktop widgets out of the screenshot window picker.",
+  "shell-version": ["51"],
+  "version": 1
+}
