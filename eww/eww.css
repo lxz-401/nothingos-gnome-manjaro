@@ -164,7 +164,7 @@
   margin-top: 20px;
   margin-right: 5px;
   font-weight: 700;
-  font-family: "Abril Fatface", sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .nothing-wasistlos {
@@ -188,4 +188,11 @@
   font-size: 14px;
   font-weight: 500;
   color: #ffffff;
+}
+/* Keep icon glyphs in the icon font instead of the display font. */
+.temp-icon, .spotify-icon, .quote-icon, .weather-icon, .wasistlos-icon {
+  font-family: "Symbols Nerd Font";
+}
+.spotify-track, .quote-text, .weather-desc, .wasistlos-text {
+  font-family: "Inter", sans-serif;
 }

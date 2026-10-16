@@ -37,6 +37,7 @@
                      :height "150px")
   :stacking "bg"
   :windowtype "dock"
+  :sticky true
   :wm-ignore false
   :class "widget-window"
   (temp-widget))
@@ -56,7 +57,7 @@
          :halign "center" 
          :valign "center"
       (label :class "spotify-icon" :text "󰓇") ;; Spotify icon
-      (label :class "spotify-track" :text SPOTIFY_TRACK :wrap true)
+      (label :class "spotify-track" :text SPOTIFY_TRACK :wrap true :limit-width 18)
     )
   )
 )
@@ -70,6 +71,7 @@
                      :height "150px")
   :stacking "bg"
   :windowtype "dock"
+  :sticky true
   :wm-ignore false
   :class "widget-window"
   (spotify-widget))
@@ -89,7 +91,7 @@
          :halign "center" 
          :valign "center"
       (label :class "quote-icon" :text "󰃬") ;; Quote icon
-      (label :class "quote-text" :text QUOTE :wrap true)
+      (label :class "quote-text" :text QUOTE :wrap true :limit-width 32)
     )
   )
 )
@@ -99,17 +101,17 @@
   :monitor 0
   :geometry (geometry :x "10px"
                      :y "210px" ;; Moved down
-                     :width "275px"
+                     :width "310px"
                      :height "150px")
   :stacking "bg"
   :windowtype "dock"
+  :sticky true
   :wm-ignore false
   :class "widget-window"
   (quote-widget))
 
 ;; Weather Widget
-(defpoll WEATHER_TEMP :interval "10m" "scripts/get-weather.sh | grep WEATHER_TEMP | cut -d '=' -f2")
-(defpoll WEATHER_DESC :interval "10m" "scripts/get-weather.sh | grep WEATHER_DESC | cut -d '=' -f2")
+(defpoll WEATHER :initial '{"temp":"--","description":"Toshkent"}' :interval "10m" "scripts/get-weather.sh")
 
 (defwidget weather-widget []
   (box :class "nothing-weather" 
@@ -119,10 +121,10 @@
        :valign "center"
     (label :class "weather-icon" :text "󰖐") ;; Weather icon
     (box :orientation "h" :halign "center" :space-evenly false
-      (label :class "weather-temp" :text "${WEATHER_TEMP}")
+      (label :class "weather-temp" :text "${WEATHER.temp}")
       (label :class "weather-unit" :text "°C")
     )
-    (label :class "weather-desc" :text "${WEATHER_DESC}" :wrap true)
+    (label :class "weather-desc" :text "${WEATHER.description}" :wrap true :limit-width 18)
   )
 )
 
@@ -135,6 +137,7 @@
                      :height "150px")
   :stacking "bg"
   :windowtype "dock"
+  :sticky true
   :wm-ignore false
   :class "widget-window"
   (weather-widget))
@@ -161,6 +164,7 @@
                      :height "150px")
   :stacking "bg"
   :windowtype "dock"
+  :sticky true
   :wm-ignore false
   :class "widget-window"
   (day-widget))
@@ -190,6 +194,7 @@
                      :height "150px")
   :stacking "bg"
   :windowtype "dock"
+  :sticky true
   :wm-ignore false
   :class "widget-window"
   (wasistlos-widget))
