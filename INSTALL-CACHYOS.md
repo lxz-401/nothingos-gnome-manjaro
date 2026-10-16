@@ -105,9 +105,11 @@ do not launch it alongside the managed blocks.
 
 ## YouTube hover preview freezes
 
-The optional Media Controls panel extension `2.4.5-gnome51` caused full-desktop
-freezes here when hovering YouTube previews. Disabling only its time slider did
-not fix it; disabling the extension did, confirmed by a user retest. Eww and
-Conky continue running. See [the scoped workaround](compatibility/media-controls/README.md)
-for the reversible disable script and restoration steps. Browser acceleration
-and GPU settings were left unchanged.
+Keep Media Controls enabled with the [preview performance patch](compatibility/media-controls/README.md).
+It fixes listener cleanup and bounds metadata, artwork and timeline work.
+Install the patch for the matching build and log out/back in to load its JS.
+On the current machine the panel is active; Chrome is temporarily excluded
+until fresh login, when the patched extension restores it automatically.
+The user confirmed the panel works without freezes in that temporary state.
+A live retest with the new code after login is still needed. Browser/GPU flags,
+Conky, Eww artwork and the theme are unchanged.

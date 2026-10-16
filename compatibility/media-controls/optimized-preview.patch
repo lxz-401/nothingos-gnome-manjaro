@@ -1,0 +1,402 @@
+diff --git a/src/extension.js b/src/extension.js
+index 85080fa..829b02e 100644
+--- a/src/extension.js
++++ b/src/extension.js
+@@ -263,8 +263,32 @@ export default class MediaControls extends Extension {
+      * @public
+      * @returns {void}
+      */
++    // An installer may temporarily exclude browser MPRIS players while the old
++    // cached modules are still running. Restore only those entries on fresh load.
++    restorePreviewPlayers() {
++        const path = GLib.build_filenamev([this.path, "preview-fix-pending.json"]);
++        if (!GLib.file_test(path, GLib.FileTest.EXISTS)) return;
++        try {
++            const [ok, bytes] = GLib.file_get_contents(path);
++            if (!ok) return;
++            const pending = JSON.parse(new TextDecoder().decode(bytes));
++            if (pending.version !== 1 || !Array.isArray(pending.temporaryBlacklist) ||
++                !pending.temporaryBlacklist.every(name => typeof name === "string")) return;
++            const settings = this.getSettings();
++            const current = settings.get_strv("blacklisted-players");
++            if (!settings.set_strv("blacklisted-players",
++                current.filter(name => !pending.temporaryBlacklist.includes(name)))) return;
++            Gio.Settings.sync();
++            GLib.unlink(path);
++        } catch (error) {
++            errorLog("Could not restore preview players", error);
++        }
++    }
++
+     enable() {
++        debugLog("Preview optimization active: bounded listeners, lazy popup, bounded timeline");
+         this.playerProxies = new Map();
++        this.restorePreviewPlayers();
+         this.initSettings();
+         this.initProxies().catch(errorLog);
+         this.updateMediaNotificationVisiblity();
+@@ -576,6 +600,7 @@ export default class MediaControls extends Extension {
+             }
+             const isPlayerBlacklisted = this.isPlayerBlacklisted(playerProxy.identity, playerProxy.desktopEntry);
+             if (isPlayerBlacklisted) {
++                playerProxy.onDestroy();
+                 return;
+             }
+             playerProxy.onChanged("IsPinned", this.setActivePlayer.bind(this));
+diff --git a/src/helpers/shell/MenuSlider.js b/src/helpers/shell/MenuSlider.js
+index a179432..0119b9f 100644
+--- a/src/helpers/shell/MenuSlider.js
++++ b/src/helpers/shell/MenuSlider.js
+@@ -145,7 +145,7 @@ class MenuSlider extends St.BoxLayout {
+      * @returns {void}
+      */
+     updateSlider(position, length, rate) {
+-        this.rate = rate || 1.0;
++        this.rate = Number.isFinite(rate) && rate > 0 && rate <= 16 ? rate : 1.0;
+         this.setLength(length);
+         this.setPosition(position);
+     }
+@@ -157,7 +157,7 @@ class MenuSlider extends St.BoxLayout {
+      */
+     setRate(rate) {
+         const oldRate = this.rate;
+-        this.rate = rate || 1.0;
++        this.rate = Number.isFinite(rate) && rate > 0 && rate <= 16 ? rate : 1.0;
+         this.setPosition(this.transition.get_elapsed_time() * oldRate * 1000);
+         this.setLength(this.transition.duration * oldRate * 1000);
+     }
+@@ -168,10 +168,11 @@ class MenuSlider extends St.BoxLayout {
+      * @returns {void}
+      */
+     setPosition(position) {
+-        position = position / 1000;
++        if (this.disabled || !Number.isFinite(position)) return;
++        position = Math.max(0, Math.min(position / 1000, this.transition.duration * this.rate));
+         this.elapsedLabel.text = msToHHMMSS(position);
+         this.slider.value = position / this.rate / this.transition.duration;
+-        this.transition.advance(position / this.rate);
++        this.transition.advance(Math.floor(position / this.rate));
+     }
+ 
+     /**
+@@ -181,9 +182,14 @@ class MenuSlider extends St.BoxLayout {
+      */
+     setLength(length) {
+         length = length / 1000;
++        const duration = Math.floor(length / this.rate);
++        if (!Number.isFinite(duration) || duration < 1 || duration > 0xffffffff) {
++            this.setDisabled(true);
++            return;
++        }
+         this.durationLabel.text = msToHHMMSS(length);
+         this.slider.value = 0;
+-        this.transition.set_duration(length / this.rate);
++        this.transition.set_duration(duration);
+         this.transition.rewind();
+         this.updateMarkers();
+     }
+@@ -238,10 +244,12 @@ class MenuSlider extends St.BoxLayout {
+         for (const marker of markers) {
+             this.transition.remove_marker(marker);
+         }
+-        for (let i = 0; i <= noOfSecs; i++) {
++        if (this.disabled || !Number.isFinite(noOfSecs) || noOfSecs < 0) return;
++        const step = Math.max(1, Math.ceil(noOfSecs / 120));
++        for (let i = 0; i <= noOfSecs; i += step) {
+             const ms = i * 1000;
+             const elapsedText = msToHHMMSS(ms);
+-            this.transition.add_marker_at_time(elapsedText, ms / this.rate);
++            this.transition.add_marker_at_time(elapsedText, Math.floor(ms / this.rate));
+         }
+     }
+ 
+diff --git a/src/helpers/shell/PanelButton.js b/src/helpers/shell/PanelButton.js
+index 3577f03..7780689 100644
+--- a/src/helpers/shell/PanelButton.js
++++ b/src/helpers/shell/PanelButton.js
+@@ -31,7 +31,7 @@ import {
+     WidgetFlags,
+ } from "../../types/enums/common.js";
+ 
+-Gio._promisify(GdkPixbuf.Pixbuf, "new_from_stream_async", "new_from_stream_finish");
++Gio._promisify(GdkPixbuf.Pixbuf, "new_from_stream_at_scale_async", "new_from_stream_finish");
+ Gio._promisify(Gio.File.prototype, "query_info_async", "query_info_finish");
+ 
+ /**
+@@ -171,6 +171,21 @@ class PanelButton extends PanelMenu.Button {
+         this.extension = extension;
+         this.changeListenerIds = new Map();
+         this.doubleTapSourceId = null;
++        this.destroyed = false;
++        this.pendingMenuFlags = 0;
++        this.metadataUpdateId = null;
++        this.imageGeneration = 0;
++        this.menu.connectObject("open-state-changed", (_, open) => {
++            if (open) {
++                const flags = this.pendingMenuFlags;
++                this.pendingMenuFlags = 0;
++                this.updateWidgets(flags);
++            } else {
++                this.imageGeneration++;
++                this.menuSlider?.pauseTransition();
++                this.pendingMenuFlags |= WidgetFlags.MENU_IMAGE | WidgetFlags.MENU_SLIDER;
++            }
++        }, this);
+         this.updateWidgets(WidgetFlags.ALL);
+         this.addProxyListeners();
+         this.initActions();
+@@ -220,6 +235,11 @@ class PanelButton extends PanelMenu.Button {
+      * @returns {void}
+      */
+     updateWidgets(flags) {
++        if (this.destroyed) return;
++        if (!this.menu.isOpen) {
++            this.pendingMenuFlags |= flags & WidgetFlags.MENU;
++            flags &= ~WidgetFlags.MENU;
++        }
+         if (this.buttonBox == null) {
+             this.buttonBox = new St.BoxLayout({
+                 styleClass: "panel-button-box",
+@@ -476,6 +496,10 @@ class PanelButton extends PanelMenu.Button {
+      * @returns {Promise<void>}
+      */
+     async addMenuImage() {
++        const player = this.playerProxy;
++        const generation = ++this.imageGeneration;
++        const current = () => !this.destroyed && this.menu.isOpen &&
++            this.playerProxy === player && generation === this.imageGeneration;
+         if (this.menuImage == null) {
+             this.menuImage = new St.Icon({
+                 xExpand: false,
+@@ -484,7 +508,8 @@ class PanelButton extends PanelMenu.Button {
+             });
+         }
+         let artSet = false;
+-        let stream = await getImage(this.playerProxy.metadata["mpris:artUrl"]);
++        let stream = await getImage(player.metadata["mpris:artUrl"]);
++        if (!current()) { stream?.close(null); return; }
+         if (stream == null && this.playerProxy.metadata["xesam:url"] != null) {
+             const trackUri = GLib.uri_parse(this.playerProxy.metadata["xesam:url"], GLib.UriFlags.NONE);
+             if (trackUri != null && trackUri.get_scheme() === "file") {
+@@ -497,6 +522,7 @@ class PanelButton extends PanelMenu.Button {
+                         null,
+                     )
+                     .catch(errorLog);
++                if (!current()) return;
+                 if (info != null) {
+                     const path = info.get_attribute_byte_string(Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH);
+                     if (path == null) {
+@@ -508,11 +534,18 @@ class PanelButton extends PanelMenu.Button {
+                 }
+             }
+         }
+-        const width = this.getMenuItemWidth();
++        if (!current()) { stream?.close(null); return; }
++        const width = Math.min(512, Math.max(64, this.getMenuItemWidth()));
+         if (stream != null) {
+             /** @type {Promise<GdkPixbuf.Pixbuf>} */
+-            const pixbufPromise = /** @type {any} */ (GdkPixbuf.Pixbuf.new_from_stream_async(stream, null));
+-            const pixbuf = await pixbufPromise.catch(errorLog);
++            const pixbufPromise = /** @type {any} */ (GdkPixbuf.Pixbuf.new_from_stream_at_scale_async(stream, 384, 384, true, null));
++            let pixbuf;
++            try {
++                pixbuf = await pixbufPromise.catch(errorLog);
++            } finally {
++                stream.close(null);
++            }
++            if (!current()) return;
+             if (pixbuf != null) {
+                 const aspectRatio = pixbuf.width / pixbuf.height;
+                 const height = width / aspectRatio;
+@@ -594,7 +627,9 @@ class PanelButton extends PanelMenu.Button {
+      * @returns {Promise<void>}
+      */
+     async addMenuSlider() {
+-        const position = await this.playerProxy.position.catch(errorLog);
++        const player = this.playerProxy;
++        const position = await player.position.catch(errorLog);
++        if (this.destroyed || !this.menu.isOpen || this.playerProxy !== player) return;
+         const length = this.playerProxy.metadata["mpris:length"];
+         const rate = this.playerProxy.rate;
+         if (this.menuSlider == null) {
+@@ -973,22 +1008,26 @@ class PanelButton extends PanelMenu.Button {
+      */
+     addProxyListeners() {
+         this.addProxyListener("Metadata", () => {
+-            this.updateWidgets(
+-                WidgetFlags.PANEL_LABEL | WidgetFlags.MENU_IMAGE | WidgetFlags.MENU_LABELS | WidgetFlags.MENU_SLIDER,
+-            );
++            if (this.metadataUpdateId != null) return;
++            this.metadataUpdateId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 150, () => {
++                this.metadataUpdateId = null;
++                this.updateWidgets(WidgetFlags.PANEL_LABEL | WidgetFlags.MENU_IMAGE |
++                    WidgetFlags.MENU_LABELS | WidgetFlags.MENU_SLIDER);
++                return GLib.SOURCE_REMOVE;
++            });
+         });
+         this.addProxyListener("PlaybackStatus", () => {
+             this.updateWidgets(WidgetFlags.PANEL_CONTROLS_PLAYPAUSE | WidgetFlags.MENU_CONTROLS_PLAYPAUSE);
+             if (this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING) {
+                 this.buttonLabel?.pauseScrolling();
+-                this.menuLabelTitle.pauseScrolling();
+-                this.menuLabelSubtitle.pauseScrolling();
++                this.menuLabelTitle?.pauseScrolling();
++                this.menuLabelSubtitle?.pauseScrolling();
+                 this.menuSlider?.pauseTransition();
+             } else {
+                 this.buttonLabel?.resumeScrolling();
+-                this.menuLabelTitle.resumeScrolling();
+-                this.menuLabelSubtitle.resumeScrolling();
+-                this.menuSlider?.resumeTransition();
++                this.menuLabelTitle?.resumeScrolling();
++                this.menuLabelSubtitle?.resumeScrolling();
++                if (this.menu.isOpen) this.menuSlider?.resumeTransition();
+             }
+         });
+         this.addProxyListener("CanPlay", () => {
+@@ -1021,7 +1060,7 @@ class PanelButton extends PanelMenu.Button {
+         this.addProxyListener("Rate", () => {
+             this.menuSlider?.setRate(this.playerProxy.rate);
+         });
+-        this.playerProxy.onSeeked((position) => {
++        this.disconnectSeeked = this.playerProxy.onSeeked((position) => {
+             this.menuSlider?.setPosition(position);
+         });
+     }
+@@ -1031,9 +1070,17 @@ class PanelButton extends PanelMenu.Button {
+      * @returns {void}
+      */
+     removeProxyListeners() {
++        this.disconnectSeeked?.();
++        this.disconnectSeeked = null;
++        this.imageGeneration++;
++        if (this.metadataUpdateId != null) {
++            GLib.source_remove(this.metadataUpdateId);
++            this.metadataUpdateId = null;
++        }
+         for (const [property, id] of this.changeListenerIds.entries()) {
+             this.playerProxy.removeListener(property, id);
+         }
++        this.changeListenerIds.clear();
+     }
+ 
+     /**
+@@ -1191,6 +1238,7 @@ class PanelButton extends PanelMenu.Button {
+      * @returns {void}
+      */
+     onDestroy() {
++        this.destroyed = true;
+         this.removeProxyListeners();
+         this.playerProxy = null;
+         // Null out references to child widgets before parent destroys them
+@@ -1199,10 +1247,7 @@ class PanelButton extends PanelMenu.Button {
+         this.menuImage = null;
+         this.menuLabels = null;
+         this.menuControls = null;
+-        this.buttonIcon?.destroy();
+-        this.buttonLabel?.destroy();
+-        this.buttonControls?.destroy();
+-        this.buttonBox?.destroy();
++        // Parent destruction owns child actor disposal. Only clear references.
+         this.buttonIcon = null;
+         this.buttonLabel = null;
+         this.buttonControls = null;
+@@ -1212,9 +1257,6 @@ class PanelButton extends PanelMenu.Button {
+         this.menuPlayersTextBoxIcon = null;
+         this.menuPlayersTextBoxLabel = null;
+         this.menuPlayersTextBoxPin = null;
+-        if (this.menuPlayerIcons != null) {
+-            this.menuPlayerIcons.get_children().forEach((child) => child.destroy());
+-        }
+         this.menuPlayerIcons = null;
+         this.menuLabelTitle = null;
+         this.menuLabelSubtitle = null;
+diff --git a/src/helpers/shell/PlayerProxy.js b/src/helpers/shell/PlayerProxy.js
+index 662bacf..deaa9b1 100644
+--- a/src/helpers/shell/PlayerProxy.js
++++ b/src/helpers/shell/PlayerProxy.js
+@@ -12,7 +12,7 @@ import GLib from "gi://GLib";
+ /**
+  * @typedef {Map<
+  *     KeysOf<PlayerProxyProperties>,
+- *     ((value: PlayerProxyProperties[KeysOf<PlayerProxyProperties>]) => void)[]
++ *     Map<number, (value: PlayerProxyProperties[KeysOf<PlayerProxyProperties>]) => void>
+  * >} PlayerProxyChangeListeners
+  */
+ 
+@@ -67,6 +67,8 @@ export default class PlayerProxy {
+         this.isPinned = false;
+         this.isInvalid = true;
+         this.changeListeners = new Map();
++        this.nextListenerId = 0;
++        this.destroyed = false;
+     }
+ 
+     /**
+@@ -88,7 +90,8 @@ export default class PlayerProxy {
+         this.mprisProxy = proxies[0];
+         this.mprisPlayerProxy = proxies[1];
+         this.propertiesProxy = proxies[2];
+-        this.propertiesProxy.connectSignal("PropertiesChanged", (proxy, senderName, [, changedProperties]) => {
++        this.propertiesSignalId = this.propertiesProxy.connectSignal("PropertiesChanged", (proxy, senderName, [, changedProperties]) => {
++            if (this.destroyed) return;
+             for (const [property, value] of Object.entries(changedProperties)) {
+                 this.mprisPlayerProxy.set_cached_property(property, value);
+                 this.callOnChangedListeners(
+@@ -228,7 +231,7 @@ export default class PlayerProxy {
+         if (listeners == null) {
+             return;
+         }
+-        for (const listener of listeners) {
++        for (const listener of [...listeners.values()]) {
+             try {
+                 listener(value);
+             } catch (error) {
+@@ -571,14 +574,11 @@ export default class PlayerProxy {
+      * @returns {number}
+      */
+     onChanged(property, callback) {
+-        const listeners = this.changeListeners.get(property);
+-        let id;
+-        if (listeners == null) {
+-            id = 0;
+-            this.changeListeners.set(property, [callback]);
+-        } else {
+-            id = listeners.push(callback);
++        if (!this.changeListeners.has(property)) {
++            this.changeListeners.set(property, new Map());
+         }
++        const id = this.nextListenerId++;
++        this.changeListeners.get(property).set(id, callback);
+         return id;
+     }
+ 
+@@ -590,11 +590,7 @@ export default class PlayerProxy {
+      * @returns {void}
+      */
+     removeListener(property, id) {
+-        const listeners = this.changeListeners.get(property);
+-        if (listeners == null) {
+-            return;
+-        }
+-        listeners.splice(id, 1);
++        this.changeListeners.get(property)?.delete(id);
+     }
+ 
+     /**
+@@ -602,8 +598,15 @@ export default class PlayerProxy {
+      * @returns {void}
+      */
+     onDestroy() {
++        this.destroyed = true;
+         if (this.pollSourceId != null) {
+             GLib.source_remove(this.pollSourceId);
++            this.pollSourceId = null;
++        }
++        if (this.propertiesSignalId != null) {
++            this.propertiesProxy.disconnectSignal(this.propertiesSignalId);
++            this.propertiesSignalId = null;
+         }
++        this.changeListeners.clear();
+     }
+ }
