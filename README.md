@@ -125,7 +125,7 @@ application configs before copying them.
 ---
 ### 4. Open widgets and Conky
 ```bash
-conky -c ~/path/to/your/conky
+~/.config/conky/start_conky.sh  # clock + four independently positioned blocks
 # for EWW widgets
 eww open name-of-widget
 # example eww open day-of-month

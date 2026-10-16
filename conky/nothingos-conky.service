@@ -7,7 +7,7 @@ StartLimitBurst=5
 
 [Service]
 Type=simple
-ExecStart=%h/.local/lib/nothingos/conky -c %h/.config/conky/nothing-phone-conky.conf
+ExecStart=%h/.config/conky/run-blocks.sh
 Restart=on-failure
 RestartSec=3
 

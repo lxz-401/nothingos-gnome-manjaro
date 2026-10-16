@@ -41,7 +41,7 @@ Install the version-pinned local fix in `gnome-extension/` and enable
 widget thumbnails; screen/area screenshots still show the desktop widgets.
 See `gnome-extension/README.md` for validation and reversal.
 
-Conky uses `output_backend = 'x11'`. The supplied config is compact enough for
+Conky uses `output_backend = 'x11'`. The supplied block layout fits
 1920x1080, uses this machine's wlan0/enp7s0 interfaces, reads a real CPU sensor,
 and omits unavailable update data. The broken upstream Cairo hook is disabled.
 
@@ -60,7 +60,10 @@ Install `conky/nothingos-conky.service` under `~/.config/systemd/user/` and
 run `systemctl --user daemon-reload` and `systemctl --user enable nothingos-conky.service`.
 `conky/start_conky.sh` imports the display environment and starts that service.
 GNOME `.desktop` autostart invokes the same launcher; repeated starts reuse one
-process. The service restarts on failure and stops with the graphical session.
+service. `conky/run-blocks.sh` supervises five child processes: clock, CPU, memory,
+storage/battery and network. Copy `common.lua`, the five matching `.conf` files
+and the executable launcher together to `~/.config/conky/`. The service restarts
+on failure and stops with the graphical session.
 
 Install `conky/conky-launcher.sh` as executable `~/.local/bin/conky`. With no
 arguments it starts the service; explicit arguments use the fixed binary.
@@ -73,3 +76,21 @@ The two-Conky launcher is an optional alternative for X11; it is not autostarted
 
 Weather data: [Open-Meteo](https://open-meteo.com/),
 [API documentation](https://open-meteo.com/en/docs).
+
+## Moving individual Conky blocks
+
+The default layout targets 1920×1080: clock at the top right with a 110 px
+right margin, four 300 px blocks at the bottom with left margins of 350, 680,
+1010 and 1340 px. This leaves the left Eww widgets and right dock clear.
+Edit `alignment`, `gap_x`, and `gap_y` in `clock.conf`, `cpu.conf`,
+`memory.conf`, `storage.conf`, or `network.conf`, then run:
+
+```sh
+systemctl --user restart nothingos-conky.service
+```
+
+Shared fonts, colors, window hints and widths are in `common.lua`. Keep the
+class/title unchanged for the screenshot integration. For smaller displays,
+reduce block widths and left margins before starting. The old
+`nothing-phone-conky.conf` remains an optional single-window configuration;
+do not launch it alongside the managed blocks.
