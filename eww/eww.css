@@ -210,12 +210,18 @@
   background-color: whitesmoke;
   color: #171717;
   border-radius: 24px;
-  padding: 12px 16px;
+  padding: 12px 16px 20px;
   min-width: 275px;
-  min-height: 126px;
+  min-height: 118px;
   font-family: "Inter", sans-serif;
 }
-.reminders-header { font-size: 14px; font-weight: 700; }
+/* Child widgets have an explicit global NDOT rule; override each child too. */
+.nothing-reminders, .nothing-reminders * {
+  font-family: "Inter", "Noto Sans", sans-serif;
+  font-weight: 400;
+}
+.reminders-header { font-size: 14px; }
+.reminders-header label { font-weight: 600; }
 .reminder-add, .reminder-delete {
   background-image: none;
   background-color: transparent;
@@ -236,3 +242,7 @@
 .reminder-text { font-size: 12px; }
 .reminders-empty { font-size: 12px; color: #686868; }
 .nothing-reminders scrollbar { background-color: transparent; }
+
+.reminder-add label, .reminder-delete label {
+  font-weight: 500;
+}
