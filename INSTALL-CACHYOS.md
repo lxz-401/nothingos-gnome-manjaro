@@ -11,7 +11,11 @@ files, symlinks and their resolved contents before installing.
   `~/.config/gtk-4.0/gtk.css` and `gtk-dark.css` after backing up old overrides.
 - Install `shell-theme/gnome-shell.css` under `NothingOS-Shell/gnome-shell/`.
   Enable the GNOME 51 User Themes extension and select NothingOS-Shell.
-- Use the dark color preference, Papirus-Dark icons, Inter UI font and Fira Code.
+- Run `./install.sh` to install and automatically select WhiteSur icons.
+  It uses the official pinned source, preserves previous WhiteSur files/icon
+  selection, and respects XDG data/state directories. `--no-apply` installs
+  files for provisioning without changing GNOME settings. See README for dependencies.
+- Use the dark color preference, Inter UI font and Fira Code.
   Upstream does not include the advertised NothingOS-Icons or dot-pattern asset.
 - Copy `alacritty/`, `conky/`, and `eww/` to `~/.config/`. Install the supplied
   NDOT font and Symbols Nerd Font for the Eww icon glyphs.
