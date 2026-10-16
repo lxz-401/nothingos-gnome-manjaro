@@ -279,3 +279,16 @@ notebook > header > tabs > tab:checked {
   color: @accent_color;
   border-bottom: 2px solid @accent_color;
 }
+
+/* Settings paints these controls with its own palette and preview images. */
+button.accent-button {
+  background-color: var(--accent-bg-color);
+  border-radius: 9999px;
+  padding: 3px;
+}
+
+button.background-preview-button {
+  background-color: transparent;
+  border-radius: 9px;
+  padding: 0;
+}
