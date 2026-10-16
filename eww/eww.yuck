@@ -132,7 +132,7 @@
 (defwindow weather-widget
   :monitor 0
   :geometry (geometry :x "10px"
-                     :y "370px" ;; Moved down
+                     :y "390px" ;; Leave space below the reminders card
                      :width "150px"
                      :height "150px")
   :stacking "bottom"
@@ -159,7 +159,7 @@
 (defwindow day-of-month
   :monitor 0
   :geometry (geometry :x "170px"
-                     :y "370px" ;; Moved down
+                     :y "390px" ;; Leave space below the reminders card
                      :width "150px"
                      :height "150px")
   :stacking "bottom"
