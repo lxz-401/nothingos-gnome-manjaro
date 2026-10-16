@@ -27,6 +27,14 @@ path on GNOME Wayland. XWayland displays desktop, sticky windows below other
 applications; no layer-shell support is needed. The launcher opens temperature,
 media, quote, date and weather windows. Toshkent weather uses Open-Meteo
 without an API key, with coordinates in `eww/weather.json`.
+The media card selects a playing MPRIS player first, preferring Spotify when
+states tie, and falls back to paused media. It shows album art or the selected
+app's icon. Copy `scripts/get-media.sh`, `scripts/media-image.py`, and
+`scripts/media-fallback.svg` together. Artwork needs Python 3 with PyGObject,
+GTK 3 and GdkPixbuf (`python-gobject gtk3 gdk-pixbuf2` on Arch). HTTPS covers
+are cached under `$XDG_CACHE_HOME/nothingos/media` (default `~/.cache`), with
+at most 16 downloaded images; offline/missing covers use the app icon.
+
 No made-up weather, sensor or notification data is enabled. Startup is serialized
 and waits for a ready daemon before opening windows. Explicit opens cannot spawn
 a second daemon. Startup output is kept in `~/.cache/eww/eww_nothingos.log`.

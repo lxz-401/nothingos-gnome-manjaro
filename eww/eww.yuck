@@ -43,7 +43,7 @@
   (temp-widget))
 
 ;; Spotify Now Playing Widget
-(defpoll SPOTIFY_TRACK :interval "5s" "scripts/get-media.sh")
+(defpoll MEDIA :initial '{"title":"No media playing","image":"scripts/media-fallback.svg"}' :interval "5s" "scripts/get-media.sh --json")
 
 (defwidget spotify-widget []
   (box :class "nothing-spotify" 
@@ -56,8 +56,8 @@
          :space-evenly false 
          :halign "center" 
          :valign "center"
-      (label :class "spotify-icon" :text "󰓇") ;; Spotify icon
-      (label :class "spotify-track" :text SPOTIFY_TRACK :wrap true :limit-width 18)
+      (image :class "media-art" :path "${MEDIA.image}" :image-width 64 :image-height 64)
+      (label :class "spotify-track" :text "${MEDIA.title}" :wrap true :limit-width 18)
     )
   )
 )

@@ -2,6 +2,15 @@
 # The first MPRIS player can be a stopped messenger with stale metadata.
 # Prefer a player that is actually playing; paused media is the fallback.
 set -u
+emit() {
+    if [[ ${1:-} == --json ]]; then
+        local directory
+        directory=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+        /usr/bin/python3 "$directory/media-image.py" "$2" "$3"
+    else
+        printf '%s\n' "$3"
+    fi
+}
 mapfile -t available < <(playerctl -l 2>/dev/null)
 # For equally active players, prefer Spotify to match this widget's identity.
 players=()
@@ -21,8 +30,8 @@ for wanted in Playing Paused; do
         track=$(playerctl --player="${players[$i]}" metadata \
             --format '{{artist}} - {{title}}' 2>/dev/null) || continue
         [[ -n ${track//[[:space:]-]/} ]] || continue
-        printf '%s\n' "$track"
+        emit "${1:-}" "${players[$i]}" "$track"
         exit 0
     done
 done
-printf '%s\n' 'No media playing'
+emit "${1:-}" '' 'No media playing'

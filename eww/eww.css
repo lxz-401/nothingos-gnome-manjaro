@@ -196,3 +196,11 @@
 .spotify-track, .quote-text, .weather-desc, .wasistlos-text {
   font-family: "Inter", sans-serif;
 }
+
+/* Album artwork, with the selected player's app icon as a fallback. */
+.media-art {
+  margin-bottom: 8px;
+}
+.nothing-spotify .spotify-content {
+  margin: 0;
+}
