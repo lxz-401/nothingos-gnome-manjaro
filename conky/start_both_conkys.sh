@@ -1,3 +1,4 @@
 #!/bin/sh
-conky -c "$HOME/.config/conky/nothing-phone-conky.conf" &
-exec conky -c "$HOME/.config/conky/spotify_nolua.conkyrc"
+set -eu
+# Compatibility entry point: the service owns all five desktop blocks.
+exec "${XDG_CONFIG_HOME:-$HOME/.config}/conky/start_conky.sh"

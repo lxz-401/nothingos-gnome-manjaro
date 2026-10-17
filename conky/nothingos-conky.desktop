@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=NothingOS Conky
+Comment=Start the NothingOS desktop monitor
+Exec=sh -c "exec \\"\\${XDG_CONFIG_HOME:-\\$HOME/.config}/conky/start_conky.sh\\""
+StartupNotify=false
+Terminal=false
+Icon=conky-logomark-violet
+Categories=System;Monitor;
+OnlyShowIn=GNOME;
+X-GNOME-Autostart-enabled=true

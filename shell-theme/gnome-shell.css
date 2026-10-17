@@ -130,29 +130,96 @@
   background-color: rgba(69, 255, 188, 0.15);
 }
 
-/* Quick Settings */
+/* Quick Settings: style both halves of GNOME's split toggles. */
 .quick-settings {
   padding: 16px;
+  border-radius: 16px;
+  background-color: #111111;
+  color: #ffffff;
+  border: 1px solid #303030;
+}
+
+.quick-settings-grid {
+  spacing-rows: 12px;
+  spacing-columns: 12px;
+}
+
+.quick-settings .quick-toggle,
+.quick-settings .quick-toggle-has-menu {
   border-radius: 12px;
-  background-color: rgba(0, 0, 0, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 64px;
 }
 
-.quick-settings .quick-toggle {
+/* GNOME puts padding inside the label box, so the arrow reaches the edge. */
+.quick-settings .quick-toggle.button {
+  padding: 0;
+}
+.quick-settings .quick-toggle > StBoxLayout {
+  padding: 0 14px;
+  spacing: 8px;
+}
+
+.quick-settings .quick-toggle,
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button {
+  background-color: #242424;
+  color: #ffffff;
+  border: none;
+  box-shadow: none;
+}
+.quick-settings .quick-toggle:hover,
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:hover {
+  background-color: #333333;
+}
+.quick-settings .quick-toggle:active,
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:active {
+  background-color: #404040;
+}
+.quick-settings .quick-toggle:checked,
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:checked {
+  background-color: #45ffbc;
+  color: #062419;
+}
+.quick-settings .quick-toggle:checked:hover,
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:checked:hover {
+  background-color: #71ffcd;
+  color: #062419;
+}
+.quick-settings .quick-toggle:checked:active,
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:checked:active {
+  background-color: #30dca1;
+  color: #062419;
+}
+.quick-settings .quick-toggle:focus,
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:focus {
+  box-shadow: inset 0 0 0 2px #ffffff;
+}
+.quick-settings .quick-toggle-has-menu .quick-toggle:ltr {
+  border-radius: 12px 0 0 12px;
+}
+.quick-settings .quick-toggle-has-menu .quick-toggle:rtl {
+  border-radius: 0 12px 12px 0;
+}
+.quick-settings .quick-toggle-has-menu .quick-toggle:last-child {
   border-radius: 12px;
-  padding: 12px;
-  background-color: rgba(255, 255, 255, 0.05);
 }
-
-.quick-settings .quick-toggle:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button {
+  padding: 0 12px;
 }
-
-.quick-settings .quick-toggle:active {
-  background-color: rgba(69, 255, 188, 0.15);
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:ltr {
+  border-radius: 0 12px 12px 0;
 }
-
-.quick-settings .quick-toggle:checked {
-  background-color: rgba(69, 255, 188, 0.15);
-  color: #45ffbc;
+.quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:rtl {
+  border-radius: 12px 0 0 12px;
+}
+.quick-settings .quick-toggle-has-menu .quick-toggle-separator {
+  width: 1px;
+  background-color: #454545;
+}
+.quick-settings .quick-toggle-has-menu:checked .quick-toggle-separator {
+  background-color: #29b183;
+}
+.quick-settings .slider {
+  color: #ffffff;
+  -barlevel-active-background-color: #45ffbc;
+  -barlevel-background-color: #3a3a3a;
 }

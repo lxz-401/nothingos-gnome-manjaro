@@ -74,13 +74,24 @@ and the executable launcher together to `~/.config/conky/`. The service restarts
 on failure and stops with the graphical session.
 
 Install `conky/conky-launcher.sh` as executable `~/.local/bin/conky`. With no
-arguments it starts the service; explicit arguments use the fixed binary.
-Link `~/.conkyrc` to `~/.config/conky/nothing-phone-conky.conf` so the distribution
-binary also finds the X11 config when an existing shell still caches its path.
-Use `rehash` in such a zsh session to pick up the new launcher.
+arguments, or only desktop daemon/pause flags, it starts the service; version,
+help and explicit configuration arguments use the local binary when installed,
+falling back to `/usr/bin/conky` on portable installs. Install
+`conky/conky.desktop` as `~/.local/share/applications/conky.desktop` and optionally
+as executable `$(xdg-user-dir DESKTOP)/conky.desktop`. Install
+`conky/nothingos-conky.desktop` under `~/.config/autostart/`. These entries call
+the managed launcher directly, because GNOME's session PATH can omit
+`~/.local/bin` and otherwise resolve the distribution's default Conky launcher.
+The legacy `start_both_conkys.sh` entry also starts the same service. The source
+repository requires these manual copy steps; its configuration copy alone does
+not install application overrides. The exported NothingOS profile declares
+the application override, autostart and CLI wrapper in `profile.json` for its
+`ui.sh` provisioning flow. Keep an
+existing `~/.conkyrc` only for deliberate standalone invocations; the managed
+launchers always select the five block configurations explicitly.
 
 Keep the Eww `.desktop` autostart pointing to `eww/start-eww.sh`.
-The two-Conky launcher is an optional alternative for X11; it is not autostarted.
+All supplied Conky desktop entry points reuse the same five-block service.
 
 Weather data: [Open-Meteo](https://open-meteo.com/),
 [API documentation](https://open-meteo.com/en/docs).
