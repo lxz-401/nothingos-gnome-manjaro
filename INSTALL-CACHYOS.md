@@ -148,3 +148,14 @@ Run `python3 agents/install.py` to install the noninteractive
 `nothingos-reminders` CLI, Codex skill and automatic remaining-work preference.
 Stable `--key` values prevent duplicate notes across retries. See
 [agent setup](agents/README.md) for commands, scope and backup behavior.
+
+
+## Independent top-panel hover zones
+
+The optional [Panel Zones companion](panel-zones-extension/README.md) reveals only
+the native left/workspace, center/media-and-clock or right/tray group under the
+pointer. Install alongside Hide Top Bar for edge reveal. Keep Intellihide off,
+mouse-edge reveal on and pressure threshold 1. Existing media/tray placement
+stays intact; open menus retain their owning zone. A newly installed local
+extension requires Logout → Login before GNOME discovers it. The extension
+README explains disable/restore and the isolated regression test.
