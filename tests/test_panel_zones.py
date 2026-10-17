@@ -19,6 +19,7 @@ HARNESS = r'''
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 const logic = await import('data:text/javascript;base64,' + Buffer.from(fs.readFileSync('panel-zones-extension/zoneLogic.js')).toString('base64'));
+const policy = await import('data:text/javascript;base64,' + Buffer.from(fs.readFileSync('panel-zones-extension/windowPolicy.js')).toString('base64'));
 const bounds = [{left:0,right:100},{left:700,right:1100},{left:1600,right:1920}];
 assert.equal(logic.hoveredZone(bounds, 10, 0, 0, 32), 0);
 assert.equal(logic.hoveredZone(bounds, 800, 20, 0, 32), 1);
@@ -45,11 +46,24 @@ class Actor {
     get_transformed_position() { return [this.left,this.translation_y]; }
     remove_all_transitions() {}
 }
+function metaWindow(overrides={}) {
+    return Object.assign(new Actor(), {minimized:false, maximized_horizontally:true,
+        maximized_vertically:true, get_monitor:()=>0, showing_on_its_workspace:()=>true, located_on_workspace:()=>true,
+        is_fullscreen:()=>false}, overrides);
+}
+const maxWindow=metaWindow();
+assert(policy.shouldAutohide([maxWindow],0));
+for (const changes of [{maximized_horizontally:false}, {maximized_vertically:false},
+    {minimized:true}, {get_monitor:()=>1}, {showing_on_its_workspace:()=>false}, {located_on_workspace:()=>false}])
+    assert.equal(policy.shouldAutohide([metaWindow(changes)],0),false);
+assert.equal(policy.shouldAutohide([],0),false);
+assert(policy.shouldAutohide([metaWindow({maximized_horizontally:false,maximized_vertically:false,is_fullscreen:()=>true})],0));
+let windows=[maxWindow];
 const left=new Actor(0,100), center=new Actor(700,400), right=new Actor(1600,320);
 const panel=new Actor();
 Object.assign(panel,{_leftBox:left,_centerBox:center,_rightBox:right,menuManager:{activeMenu:null}});
 const overview=new Actor();overview.visible=false;
-const layout=new Actor();layout.primaryMonitor={y:0,inFullscreen:true};layout.panelBox=new Actor();
+const layout=new Actor();layout.primaryMonitor={y:0};layout.primaryIndex=0;layout.panelBox=new Actor();
 let focus=null;
 const stage=new Actor();stage.get_key_focus=()=>focus;
 const tracker=new Actor();
@@ -57,18 +71,19 @@ let pointer=[1900,0];
 const timers=new Map();
 const GLib={PRIORITY_DEFAULT:0,SOURCE_REMOVE:false,timeout_add(_priority,delay,fn) {const id=next++;timers.set(id,{delay,fn});return id;},source_remove(id) {assert(timers.delete(id));}};
 const Main={panel,overview,layoutManager:layout,modalCount:0};
-const global={display:new Actor(),workspace_manager:new Actor(),backend:{get_cursor_tracker:()=>tracker},stage,get_pointer:()=>pointer};
+const workspaceManager=new Actor();workspaceManager.get_active_workspace=()=>({});
+const global={get_window_actors:()=>windows.map(window=>({get_meta_window:()=>window})),display:new Actor(),workspace_manager:workspaceManager,backend:{get_cursor_tracker:()=>tracker},stage,get_pointer:()=>pointer};
 const source=fs.readFileSync('panel-zones-extension/extension.js','utf8')
  .replace(/^import .*;\n/gm,'')
  .replace('export default class PanelZones extends Extension','return class PanelZones extends Extension');
-const Class=new Function('GLib','Main','global','Extension','hoveredZone','visibleZones',source)(GLib,Main,global,class {},logic.hoveredZone,logic.visibleZones);
+const Class=new Function('GLib','Main','global','Extension','hoveredZone','visibleZones','shouldAutohide',source)(GLib,Main,global,class {},logic.hoveredZone,logic.visibleZones,policy.shouldAutohide);
 const extension=new Class();extension.enable();
 assert.equal(left.opacity,0);assert.equal(center.opacity,0);assert.equal(right.opacity,255);
 assert(right.translation_y===0 && left.translation_y < -32);
 assert.deepEqual(left.clip,[0,0,0,0]);assert.equal(right.clip,null);
-layout.primaryMonitor.inFullscreen=false;pointer=[350,400];extension._sync();
-for(const actor of [left,center,right]) assert.equal(actor.opacity,255,'without fullscreen every zone stays visible');
-layout.primaryMonitor.inFullscreen=true;
+maxWindow.maximized_horizontally=false;maxWindow.maximized_vertically=false;pointer=[350,400];extension._sync();
+for(const actor of [left,center,right]) assert.equal(actor.opacity,255,'without maximized windows every zone stays visible');
+maxWindow.maximized_horizontally=true;maxWindow.maximized_vertically=true;
 pointer=[800,1];extension._sync();
 assert.equal(center.opacity,255);assert.equal(right.opacity,0);
 Main.panel.menuManager.activeMenu={sourceActor:{parent:center}};
@@ -87,7 +102,7 @@ extension.disable();
 assert.equal(timers.size,0);
 assert.equal(panel.style,'original');
 for(const actor of [left,center,right]) {assert.equal(actor.style,'original');assert.equal(actor.opacity,255);assert.equal(actor.translation_y,0);assert.equal(actor.signals.size,0);assert.equal(actor.clip,null);}
-assert.equal(tracker.signals.size,0);assert.equal(stage.signals.size,0);
+assert.equal(maxWindow.signals.size,0);assert.equal(tracker.signals.size,0);assert.equal(stage.signals.size,0);
 tracker.connect=()=>{throw new Error('injected registration failure');};
 assert.throws(()=>new Class().enable(), /injected registration failure/);
 assert.equal(panel.style,'original');

@@ -154,9 +154,10 @@ Stable `--key` values prevent duplicate notes across retries. See
 
 The optional [Panel Zones companion](panel-zones-extension/README.md) reveals only
 the native left/workspace, center/media-and-clock or right/tray group under the
-pointer when the primary monitor is fullscreen. Otherwise all groups remain
-visible, including with normal/maximized windows. Install alongside Hide Top Bar,
-apply compatibility/hidetopbar-fullscreen-only.patch to version 127, enable
+pointer when a fully maximized or fullscreen window is visible on the active workspace
+and primary monitor. Otherwise all groups remain visible. Half-tiled, minimized
+and other-workspace windows do not trigger hiding. Install alongside Hide Top Bar,
+apply compatibility/hidetopbar-maximized.patch to version 127, enable
 Intellihide, disable its active-window-only filter, and keep mouse-edge reveal
 on with pressure threshold 1. Existing media/tray placement
 stays intact; open menus retain their owning zone. A newly installed local

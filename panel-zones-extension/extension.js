@@ -3,6 +3,7 @@ import GLib from 'gi://GLib';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {hoveredZone, visibleZones} from './zoneLogic.js';
+import {shouldAutohide} from './windowPolicy.js';
 
 const HIDE_DELAY_MS = 250;
 const POINTER_INTERVAL_MS = 32;
@@ -19,6 +20,7 @@ export default class PanelZones extends Extension {
 
     _enable() {
         this._signals = [];
+        this._windowSignals = new Map();
         this._timer = 0;
         this._hideTimer = 0;
         this._pendingHide = null;
@@ -38,6 +40,13 @@ export default class PanelZones extends Extension {
         this._connect(tracker, 'position-invalidated', () => this._queue());
         this._connect(global.stage, 'notify::key-focus', () => this._queue());
         this._connect(global.display, 'in-fullscreen-changed', () => this._queue());
+        this._connect(global.display, 'restacked', () => this._queue());
+        this._connect(global.display, 'window-created', (_display, window) => {
+            this._trackWindow(window);
+            this._queue();
+        });
+        for (const actor of global.get_window_actors())
+            this._trackWindow(actor.get_meta_window());
         this._connect(global.workspace_manager, 'active-workspace-changed', () => this._queue());
         this._connect(Main.overview, 'showing', () => this._sync(true));
         this._connect(Main.overview, 'hidden', () => this._sync());
@@ -62,6 +71,26 @@ export default class PanelZones extends Extension {
         });
     }
 
+    _trackWindow(window) {
+        if (!window || this._windowSignals.has(window))
+            return;
+        const ids = [];
+        this._windowSignals.set(window, ids);
+        for (const signal of ['notify::maximized-horizontally', 'notify::maximized-vertically',
+            'notify::fullscreen', 'notify::minimized', 'workspace-changed', 'position-changed'])
+            ids.push(window.connect(signal, () => this._queue()));
+        ids.push(window.connect('unmanaged', () => {
+            this._untrackWindow(window);
+            this._queue();
+        }));
+    }
+
+    _untrackWindow(window) {
+        for (const id of this._windowSignals.get(window) ?? [])
+            window.disconnect(id);
+        this._windowSignals.delete(window);
+    }
+
     _owner(actor) {
         if (!actor)
             return -1;
@@ -84,7 +113,10 @@ export default class PanelZones extends Extension {
         const menu = Main.panel.menuManager.activeMenu;
         const menuOwner = this._owner(menu?.sourceActor);
         const focused = this._owner(global.stage.get_key_focus());
-        const showAll = overview || !monitor.inFullscreen;
+        const autohide = shouldAutohide(
+            global.get_window_actors().map(actor => actor.get_meta_window()),
+            Main.layoutManager.primaryIndex, global.workspace_manager.get_active_workspace());
+        const showAll = overview || !autohide;
         let visible = visibleZones(this._groups.length, hovered, menuOwner, showAll, focused);
         // A tray popup may use its own manager. Keep the last group while
         // such a popup owns the modal grab, without leaving all groups visible.
@@ -149,6 +181,8 @@ export default class PanelZones extends Extension {
                 GLib.source_remove(this[name]);
             this[name] = 0;
         }
+        for (const window of this._windowSignals?.keys() ?? [])
+            this._untrackWindow(window);
         for (const [object, id] of this._signals ?? [])
             object.disconnect(id);
         this._signals = [];

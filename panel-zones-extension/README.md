@@ -1,7 +1,7 @@
 # NothingOS Panel Zones (GNOME 51)
 
-Keeps all three native panel groups visible on the desktop and with normal or
-maximized windows. On a fullscreen primary monitor, reveals only the left,
+Keeps all three native panel groups visible on the desktop and with normal-size windows. When the active workspace has a fully maximized
+(or fullscreen) window on the primary monitor, reveals only the left,
 center or right panel group under the pointer.
 Native workspace/application items, Media Controls/clock and tray/system items
 retain their existing order and menu handlers. Empty gaps remain transparent.
@@ -15,11 +15,13 @@ The companion does not patch GNOME functions or replace Hide Top Bar. Use
 reveal and reclaimed desktop space. Apply the version-127 compatibility patch
 from this repository, then enable Intellihide, turn off its active-window-only
 filter, enable mouse-edge reveal and set pressure threshold to 1. The patch
-makes parent-panel hiding depend on actual fullscreen state, rather than any
-normal/maximized window overlapping the top edge:
+makes parent-panel hiding depend on fully maximized/fullscreen windows on the
+active workspace and primary monitor. Ordinary windows, half tiling and
+minimized windows do not trigger hiding. Start from unmodified v127 (restore
+the earlier backup first if the fullscreen-only patch was previously applied):
 
 ```sh
-patch --forward -p1 -d "$HOME/.local/share/gnome-shell/extensions/hidetopbar@mathieu.bidon.ca" < compatibility/hidetopbar-fullscreen-only.patch
+patch --forward -p1 -d "$HOME/.local/share/gnome-shell/extensions/hidetopbar@mathieu.bidon.ca" < compatibility/hidetopbar-maximized.patch
 ```
 
 Back up that extension before patching. A successfully patched copy must be
@@ -49,8 +51,8 @@ preferences, then log out and back in.
 Settings before this installation are saved privately in the printed
 `~/.local/state/nothingos/backups/panel-zones-*/settings.json` backup. That file
 records the changed Hide Top Bar keys; the first install also records prior
-extension choices. The later panel-fullscreen-* backup includes the upstream
-intellihide.js before the fullscreen-only patch.
+extension choices. The later panel-maximized-* backup includes the upstream
+intellihide.js before the maximize-aware patch.
 Restore only the relevant keys; do not overwrite unrelated later choices.
 
 ## Verification and limits
@@ -62,6 +64,11 @@ and failed-enable cleanup. No permanent polling runs: movement updates coalesce
 to one callback per 32 ms, and 100 ms checks run only while a popup is active.
 This does not constitute a live Shell hover test. The first real login after
 installation must still verify all three regions and menu interaction.
+
+The shared windowPolicy.js is copied into Hide Top Bar as nothingosWindowPolicy.js
+by the compatibility patch so both visibility controllers use the same rule.
+Maximize, minimize, workspace and window-close signals refresh the decision
+without a permanent polling loop.
 
 Native GNOME panel group APIs are private; metadata deliberately targets only
 GNOME 51. Lock-screen handling is left to GNOME's normal user-extension lifecycle.

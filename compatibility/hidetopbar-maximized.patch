@@ -1,0 +1,82 @@
+--- a/intellihide.js
++++ b/intellihide.js
+@@ -30,6 +30,7 @@
+ import * as Signals from 'resource:///org/gnome/shell/misc/signals.js';
+ 
+ import * as Convenience from './convenience.js';
++import {shouldAutohide} from './nothingosWindowPolicy.js';
+ 
+ // A good compromise between reactivity and efficiency; to be tuned.
+ export const INTELLIHIDE_CHECK_INTERVAL = 100;
+@@ -107,6 +108,10 @@
+             'window-created',
+             this._windowCreated.bind(this)
+         ], [
++            global.display,
++            'in-fullscreen-changed',
++            this._checkOverlap.bind(this)
++        ], [
+             // triggered for instance when the window list order changes,
+             // included when the workspace is switched
+             global.display,
+@@ -164,20 +169,21 @@
+     }
+ 
+     _addWindowSignals(wa) {
+-        if (!this._handledWindow(wa))
++        if (!wa || !this._handledWindow(wa) || this._trackedWindows.has(wa))
+             return;
+-        let signalId = wa.connect(
+-            'notify::allocation', this._checkOverlap.bind(this)
+-        );
+-        this._trackedWindows.set(wa, signalId);
+-        wa.connect('destroy', this._removeWindowSignals.bind(this));
++        const window = wa.get_meta_window();
++        const ids = [[wa, wa.connect('notify::allocation', this._checkOverlap.bind(this))]];
++        for (const signal of ['notify::maximized-horizontally', 'notify::maximized-vertically',
++            'notify::fullscreen', 'notify::minimized', 'workspace-changed'])
++            ids.push([window, window.connect(signal, this._checkOverlap.bind(this))]);
++        ids.push([wa, wa.connect('destroy', this._removeWindowSignals.bind(this))]);
++        this._trackedWindows.set(wa, ids);
+     }
+ 
+     _removeWindowSignals(wa) {
+-        if (this._trackedWindows.get(wa)) {
+-           wa.disconnect(this._trackedWindows.get(wa));
+-           this._trackedWindows.delete(wa);
+-        }
++        for (const [object, id] of this._trackedWindows.get(wa) ?? [])
++            object.disconnect(id);
++        this._trackedWindows.delete(wa);
+     }
+ 
+     updateTargetBox(box) {
+@@ -225,6 +231,15 @@
+             return;
+ 
+         let overlaps = OverlapStatus.FALSE;
++        // NothingOS: use the same maximize policy as the independent zones.
++        if (!shouldAutohide(global.get_window_actors().map(wa => wa.get_meta_window()),
++            this._monitorIndex, global.workspace_manager.get_active_workspace())) {
++            if (this._status !== overlaps) {
++                this._status = overlaps;
++                this.emit('status-changed', this._status);
++            }
++            return;
++        }
+         let windows = global.get_window_actors();
+ 
+         if (windows.length > 0) {
+--- /dev/null
++++ b/nothingosWindowPolicy.js
+@@ -0,0 +1,10 @@
++// Both panel visibility controllers share this policy. A tiled/half-maximized
++// window is not maximized; minimized and other-workspace/monitor windows do not count.
++export function shouldAutohide(windows, monitorIndex, workspace) {
++    return windows.some(window => window &&
++        window.get_monitor() === monitorIndex &&
++        !window.minimized && window.located_on_workspace(workspace) &&
++        window.showing_on_its_workspace() &&
++        (window.is_fullscreen() ||
++            (window.maximized_horizontally && window.maximized_vertically)));
++}
