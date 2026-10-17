@@ -1,7 +1,8 @@
 # NothingOS Panel Islands (GNOME 51)
 
 - Left/workspace and right/tray groups reveal only inside their own native bounds.
-- The clock is always visible in the center, including with maximized/F11 windows.
+- The clock stays visible in normal/maximized windows. True fullscreen (F11 or
+  a fullscreen video) hides every island, including the clock, even on hover.
 - Media Controls is also visible while its selected player is Playing. Paused or
   stopped media collapses; hovering the center or opening its menu reveals it
   for resuming playback. With no Media Controls extension the clock still works.
@@ -44,8 +45,9 @@ There is no permanent player polling or extra player-proxy listener tree.
 clipping, visibility and the normal full-width panel strut/fullscreen policy.
 It releases signals, timers, D-Bus subscription and its paired compositing hold.
 The persistent clock is a Shell overlay even in maximized windows, so the hold
-stays active throughout the controller lifetime rather than only in fullscreen.
-This prevents direct scanout from bypassing the clock/panel painting.
+stays active while islands can be visible. True fullscreen hides all islands
+and releases the hold; leaving fullscreen reacquires it for normal/maximized
+windows. This prevents direct scanout from bypassing clock/panel painting.
 Hide Top Bar is not automatically re-enabled: restore that previous user choice
 explicitly from the private installation backup if desired. The old compatibility
 patch remains inert while Hide Top Bar is disabled.

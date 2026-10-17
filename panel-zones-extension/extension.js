@@ -32,11 +32,11 @@ export default class PanelZones extends Extension {
         Main.layoutManager.panelBox.set_style(`${this._boxStyle ?? ''}; background: transparent; background-color: transparent; background-image: none; border: none; box-shadow: none;`);
         this._groups.forEach((group, index) => group.actor.set_style(
             `${group.style ?? ''}; ${index === 1 ? 'background-color: transparent;' : PILL}`));
-        // Keep the native panel mapped: the clock must survive maximize/F11.
+        // Keep the clock mapped over maximized windows; native fullscreen hides it.
         // No full-width strut is reserved for the transparent gaps.
         const box = Main.layoutManager.panelBox;
         Main.layoutManager.removeChrome(box);
-        Main.layoutManager.addChrome(box, {affectsStruts: false, trackFullscreen: false});
+        Main.layoutManager.addChrome(box, {affectsStruts: false, trackFullscreen: true});
         this._ownsChrome = true;
         this._placePanel();
 
@@ -194,6 +194,22 @@ export default class PanelZones extends Extension {
         if (!this._enabled || !Main.layoutManager.primaryMonitor)
             return;
         const monitor = Main.layoutManager.primaryMonitor;
+        if (monitor.inFullscreen && !Main.overview.visible) {
+            // True fullscreen has no panel islands, even at the screen edge.
+            // Cancel delayed hides so no stale hover state survives this mode.
+            for (const group of this._groups) {
+                if (group.hideTimer) {
+                    GLib.source_remove(group.hideTimer);
+                    group.hideTimer = 0;
+                }
+                this._paintGroup(group, false);
+            }
+            if (this._compositing) {
+                global.compositor.enable_unredirect();
+                this._compositing = false;
+            }
+            return;
+        }
         const [x, y] = global.get_pointer();
         const bounds = this._groups.map(({actor}) => {
             const [left] = actor.get_transformed_position();
@@ -214,7 +230,7 @@ export default class PanelZones extends Extension {
             (Main.modalCount > 0 && this._lastZone === 1) || Main.overview.visible);
         // The persistent clock is an overlay even on ordinary/maximized
         // windows. Letting those windows use direct scanout can bypass Shell's
-        // painting just as fullscreen does. Hold compositing until disable().
+        // painting. Release the hold during true fullscreen or disable().
         const composite = true;
         if (composite !== this._compositing) {
             if (composite)

@@ -1,7 +1,7 @@
 {
   "uuid": "nothingos-panel-zones@local",
   "name": "NothingOS Panel Zones",
-  "description": "Independent panel islands: always-visible clock, playing Media Controls, and left/right groups on hover.",
+  "description": "Clock and playing-media islands with independent side hover; hidden in true fullscreen.",
   "shell-version": [
     "51"
   ],

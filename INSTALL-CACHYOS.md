@@ -154,8 +154,9 @@ Stable `--key` values prevent duplicate notes across retries. See
 
 Install the [Panel Islands companion](panel-zones-extension/README.md) with
 Hide Top Bar disabled. Left/workspace and right/tray groups reveal only within
-their own widths. The clock is always visible; Media Controls is additionally
-visible while its player is Playing. Hover/menu focus can reveal paused controls.
+their own widths. In normal/maximized windows the clock remains visible; Media Controls is
+additionally visible while its player is Playing. True fullscreen hides all
+islands, including during hover. Hover/menu focus can reveal paused controls.
 Only visible elements receive backgrounds, including in the center. This mode
 supersedes the earlier Hide Top Bar maximize patch and has no whole-panel slide.
 Updates require Logout → Login to replace cached GJS modules. See its README
