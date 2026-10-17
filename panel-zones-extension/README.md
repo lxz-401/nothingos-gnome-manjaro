@@ -1,74 +1,57 @@
-# NothingOS Panel Zones (GNOME 51)
+# NothingOS Panel Islands (GNOME 51)
 
-Keeps all three native panel groups visible on the desktop and with normal-size windows. When the active workspace has a fully maximized
-(or fullscreen) window on the primary monitor, reveals only the left,
-center or right panel group under the pointer.
-Native workspace/application items, Media Controls/clock and tray/system items
-retain their existing order and menu handlers. Empty gaps remain transparent.
-The group owning an open menu or keyboard focus stays visible. Overview shows
-all three groups. Exiting a zone schedules one 250 ms delayed hide; entering
-another zone selects it immediately. Hidden actors keep their allocation but
-move above the screen, so their invisible buttons do not intercept clicks.
+- Left/workspace and right/tray groups reveal only inside their own native bounds.
+- The clock is always visible in the center, including with maximized/F11 windows.
+- Media Controls is also visible while its selected player is Playing. Paused or
+  stopped media collapses; hovering the center or opening its menu reveals it
+  for resuming playback. With no Media Controls extension the clock still works.
+- No full-width background or desktop strut is drawn/reserved. The center group
+  stays transparent and only the visible clock/media children receive pill
+  backgrounds. Overview and keyboard/menu focus retain access to native items.
 
-The companion does not patch GNOME functions or replace Hide Top Bar. Use
-[Hide Top Bar](https://extensions.gnome.org/extension/545/hide-top-bar/) for edge
-reveal and reclaimed desktop space. Apply the version-127 compatibility patch
-from this repository, then enable Intellihide, turn off its active-window-only
-filter, enable mouse-edge reveal and set pressure threshold to 1. The patch
-makes parent-panel hiding depend on fully maximized/fullscreen windows on the
-active workspace and primary monitor. Ordinary windows, half tiling and
-minimized windows do not trigger hiding. Start from unmodified v127 (restore
-the earlier backup first if the fullscreen-only patch was previously applied):
+This controller owns the panel's visibility. **Keep Hide Top Bar disabled**;
+its whole-panel slide would also hide the persistent clock. The earlier
+hidetopbar-maximized.patch/windowPolicy.js setup is obsolete for this mode and
+is not used. The upstream extension can remain installed, disabled.
 
-```sh
-patch --forward -p1 -d "$HOME/.local/share/gnome-shell/extensions/hidetopbar@mathieu.bidon.ca" < compatibility/hidetopbar-maximized.patch
-```
+## Install / apply an update
 
-Back up that extension before patching. A successfully patched copy must be
-loaded by a fresh Logout → Login; an already loaded GJS module stays cached. Without Hide Top Bar, zones still reveal separately,
-but GNOME keeps the usual top-panel work-area reservation.
+Back up the old extension and enabled-extension settings, disable Hide Top Bar
+with `gnome-extensions disable hidetopbar@mathieu.bidon.ca`, and copy this directory
+to `${XDG_DATA_HOME:-$HOME/.local/share}/gnome-shell/extensions/nothingos-panel-zones@local/`.
+Enable `nothingos-panel-zones@local`. A new or modified GJS module requires
+Logout → Login to be loaded; changing files does not replace cached live code.
+No shell restart or logout is performed by this extension.
 
-## Install
+The separate dotfiles export's NothingOS profile includes these assets and
+records Hide Top Bar as a conflicting extension to disable with scoped backup.
+Keep Media Controls in its native Center position; no MPRIS players, metadata,
+artwork, playlists or transport settings are modified by this companion.
 
-Copy this directory to
-`${XDG_DATA_HOME:-$HOME/.local/share}/gnome-shell/extensions/nothingos-panel-zones@local/`.
-Log out and back in once for GNOME to discover a newly installed local extension,
-then run `gnome-extensions enable nothingos-panel-zones@local` if needed.
-Do not restart GNOME Shell with Alt+F2 `r` in a Wayland session.
+## Media updates and resource use
 
-The separate dotfiles export's NothingOS profile also includes these assets.
-Keep Hide Top Bar installed separately when using it for whole-panel movement.
-Hide Top Bar is installed separately; its small compatibility patch is kept
-separately under compatibility/ rather than vendoring the upstream extension.
+The controller reads only Media Controls' cached selected-player PlaybackStatus.
+One D-Bus PropertiesChanged subscription queues updates only for PlaybackStatus;
+Metadata and position signals do not queue UI work or trigger image/network
+requests. Child additions/removals handle enabling/disabling Media Controls.
+Motion/status storms coalesce to one 32 ms update. Side groups have at most one
+250 ms hide timer each, and 100 ms checks run only while a popup/modal is open.
+There is no permanent player polling or extra player-proxy listener tree.
 
 ## Disable / restore
 
-`gnome-extensions disable nothingos-panel-zones@local` restores the panel/group
-styles, opacity and position. Hide Top Bar remains independently configurable.
-To return to a constantly visible native panel, disable Hide Top Bar as well.
-For the unmodified upstream behavior, restore its backed-up intellihide.js and
-preferences, then log out and back in.
-Settings before this installation are saved privately in the printed
-`~/.local/state/nothingos/backups/panel-zones-*/settings.json` backup. That file
-records the changed Hide Top Bar keys; the first install also records prior
-extension choices. The later panel-maximized-* backup includes the upstream
-intellihide.js before the maximize-aware patch.
-Restore only the relevant keys; do not overwrite unrelated later choices.
+`gnome-extensions disable nothingos-panel-zones@local` restores original styles,
+clipping, visibility and the normal full-width panel strut/fullscreen policy.
+It releases signals, timers, D-Bus subscription and any compositing hold.
+Hide Top Bar is not automatically re-enabled: restore that previous user choice
+explicitly from the private installation backup if desired. The old compatibility
+patch remains inert while Hide Top Bar is disabled.
 
-## Verification and limits
+## Verification
 
-`python3 -m unittest discover -s tests -p test_panel_zones.py` from the repository
-root exercises actual extension logic with mock actors: region boundaries,
-menus, focus, overview, movement coalescing, delayed hide cancellation, cleanup,
-and failed-enable cleanup. No permanent polling runs: movement updates coalesce
-to one callback per 32 ms, and 100 ms checks run only while a popup is active.
-This does not constitute a live Shell hover test. The first real login after
-installation must still verify all three regions and menu interaction.
-
-The shared windowPolicy.js is copied into Hide Top Bar as nothingosWindowPolicy.js
-by the compatibility patch so both visibility controllers use the same rule.
-Maximize, minimize, workspace and window-close signals refresh the decision
-without a permanent polling loop.
-
-Native GNOME panel group APIs are private; metadata deliberately targets only
-GNOME 51. Lock-screen handling is left to GNOME's normal user-extension lifecycle.
+Run `python3 -m unittest discover -s tests -p test_panel_zones.py` at repository
+root. It runs the actual controller with mocked actors/D-Bus: permanent clock,
+playing/paused/missing media, independent hover geometry, menus, fullscreen
+compositing, metadata/status storms, cleanup and failed-enable rollback.
+A real login must still verify appearance and pointer/menu interaction in Shell.
+GNOME panel APIs are private; metadata intentionally targets GNOME 51 only.

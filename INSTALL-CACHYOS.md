@@ -150,16 +150,13 @@ Stable `--key` values prevent duplicate notes across retries. See
 [agent setup](agents/README.md) for commands, scope and backup behavior.
 
 
-## Independent top-panel hover zones
+## Independent top-panel islands
 
-The optional [Panel Zones companion](panel-zones-extension/README.md) reveals only
-the native left/workspace, center/media-and-clock or right/tray group under the
-pointer when a fully maximized or fullscreen window is visible on the active workspace
-and primary monitor. Otherwise all groups remain visible. Half-tiled, minimized
-and other-workspace windows do not trigger hiding. Install alongside Hide Top Bar,
-apply compatibility/hidetopbar-maximized.patch to version 127, enable
-Intellihide, disable its active-window-only filter, and keep mouse-edge reveal
-on with pressure threshold 1. Existing media/tray placement
-stays intact; open menus retain their owning zone. A newly installed local
-extension requires Logout → Login before GNOME discovers it. The extension
-README explains disable/restore and the isolated regression test.
+Install the [Panel Islands companion](panel-zones-extension/README.md) with
+Hide Top Bar disabled. Left/workspace and right/tray groups reveal only within
+their own widths. The clock is always visible; Media Controls is additionally
+visible while its player is Playing. Hover/menu focus can reveal paused controls.
+Only visible elements receive backgrounds, including in the center. This mode
+supersedes the earlier Hide Top Bar maximize patch and has no whole-panel slide.
+Updates require Logout → Login to replace cached GJS modules. See its README
+for restore behavior, media-update limits and isolated regression verification.

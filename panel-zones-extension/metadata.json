@@ -1,7 +1,9 @@
 {
   "uuid": "nothingos-panel-zones@local",
   "name": "NothingOS Panel Zones",
-  "description": "Reveal only the left, center or right panel group under the pointer. Use with Hide Top Bar for edge reveal.",
-  "shell-version": ["51"],
-  "version": 1
+  "description": "Independent panel islands: always-visible clock, playing Media Controls, and left/right groups on hover.",
+  "shell-version": [
+    "51"
+  ],
+  "version": 2
 }
