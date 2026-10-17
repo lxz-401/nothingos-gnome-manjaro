@@ -154,8 +154,11 @@ Stable `--key` values prevent duplicate notes across retries. See
 
 The optional [Panel Zones companion](panel-zones-extension/README.md) reveals only
 the native left/workspace, center/media-and-clock or right/tray group under the
-pointer. Install alongside Hide Top Bar for edge reveal. Keep Intellihide off,
-mouse-edge reveal on and pressure threshold 1. Existing media/tray placement
+pointer when the primary monitor is fullscreen. Otherwise all groups remain
+visible, including with normal/maximized windows. Install alongside Hide Top Bar,
+apply compatibility/hidetopbar-fullscreen-only.patch to version 127, enable
+Intellihide, disable its active-window-only filter, and keep mouse-edge reveal
+on with pressure threshold 1. Existing media/tray placement
 stays intact; open menus retain their owning zone. A newly installed local
 extension requires Logout → Login before GNOME discovers it. The extension
 README explains disable/restore and the isolated regression test.

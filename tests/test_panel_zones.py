@@ -49,7 +49,7 @@ const left=new Actor(0,100), center=new Actor(700,400), right=new Actor(1600,320
 const panel=new Actor();
 Object.assign(panel,{_leftBox:left,_centerBox:center,_rightBox:right,menuManager:{activeMenu:null}});
 const overview=new Actor();overview.visible=false;
-const layout=new Actor();layout.primaryMonitor={y:0};layout.panelBox=new Actor();
+const layout=new Actor();layout.primaryMonitor={y:0,inFullscreen:true};layout.panelBox=new Actor();
 let focus=null;
 const stage=new Actor();stage.get_key_focus=()=>focus;
 const tracker=new Actor();
@@ -57,7 +57,7 @@ let pointer=[1900,0];
 const timers=new Map();
 const GLib={PRIORITY_DEFAULT:0,SOURCE_REMOVE:false,timeout_add(_priority,delay,fn) {const id=next++;timers.set(id,{delay,fn});return id;},source_remove(id) {assert(timers.delete(id));}};
 const Main={panel,overview,layoutManager:layout,modalCount:0};
-const global={backend:{get_cursor_tracker:()=>tracker},stage,get_pointer:()=>pointer};
+const global={display:new Actor(),workspace_manager:new Actor(),backend:{get_cursor_tracker:()=>tracker},stage,get_pointer:()=>pointer};
 const source=fs.readFileSync('panel-zones-extension/extension.js','utf8')
  .replace(/^import .*;\n/gm,'')
  .replace('export default class PanelZones extends Extension','return class PanelZones extends Extension');
@@ -66,6 +66,9 @@ const extension=new Class();extension.enable();
 assert.equal(left.opacity,0);assert.equal(center.opacity,0);assert.equal(right.opacity,255);
 assert(right.translation_y===0 && left.translation_y < -32);
 assert.deepEqual(left.clip,[0,0,0,0]);assert.equal(right.clip,null);
+layout.primaryMonitor.inFullscreen=false;pointer=[350,400];extension._sync();
+for(const actor of [left,center,right]) assert.equal(actor.opacity,255,'without fullscreen every zone stays visible');
+layout.primaryMonitor.inFullscreen=true;
 pointer=[800,1];extension._sync();
 assert.equal(center.opacity,255);assert.equal(right.opacity,0);
 Main.panel.menuManager.activeMenu={sourceActor:{parent:center}};

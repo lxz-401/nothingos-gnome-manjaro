@@ -37,6 +37,8 @@ export default class PanelZones extends Extension {
         const tracker = global.backend.get_cursor_tracker();
         this._connect(tracker, 'position-invalidated', () => this._queue());
         this._connect(global.stage, 'notify::key-focus', () => this._queue());
+        this._connect(global.display, 'in-fullscreen-changed', () => this._queue());
+        this._connect(global.workspace_manager, 'active-workspace-changed', () => this._queue());
         this._connect(Main.overview, 'showing', () => this._sync(true));
         this._connect(Main.overview, 'hidden', () => this._sync());
         this._connect(Main.layoutManager, 'monitors-changed', () => this._queue());
@@ -82,7 +84,8 @@ export default class PanelZones extends Extension {
         const menu = Main.panel.menuManager.activeMenu;
         const menuOwner = this._owner(menu?.sourceActor);
         const focused = this._owner(global.stage.get_key_focus());
-        let visible = visibleZones(this._groups.length, hovered, menuOwner, overview, focused);
+        const showAll = overview || !monitor.inFullscreen;
+        let visible = visibleZones(this._groups.length, hovered, menuOwner, showAll, focused);
         // A tray popup may use its own manager. Keep the last group while
         // such a popup owns the modal grab, without leaving all groups visible.
         if (Main.modalCount > 0 && menuOwner < 0 && !overview && this._lastHovered >= 0)
