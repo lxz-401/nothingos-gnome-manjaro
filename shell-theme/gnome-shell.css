@@ -147,7 +147,7 @@
 .quick-settings .quick-toggle,
 .quick-settings .quick-toggle-has-menu {
   border-radius: 12px;
-  min-height: 64px;
+  min-height: 48px;
 }
 
 /* GNOME puts padding inside the label box, so the arrow reaches the edge. */
