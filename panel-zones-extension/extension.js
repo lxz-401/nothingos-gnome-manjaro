@@ -28,8 +28,8 @@ export default class PanelZones extends Extension {
             .map(actor => ({...this._snapshot(actor), hideTimer: 0}));
         this._panelStyle = Main.panel.get_style();
         this._boxStyle = Main.layoutManager.panelBox.get_style();
-        Main.panel.set_style(`${this._panelStyle ?? ''}; background-color: transparent; border: none; box-shadow: none;`);
-        Main.layoutManager.panelBox.set_style(`${this._boxStyle ?? ''}; background-color: transparent;`);
+        Main.panel.set_style(`${this._panelStyle ?? ''}; background: transparent; background-color: transparent; background-image: none; border: none; box-shadow: none;`);
+        Main.layoutManager.panelBox.set_style(`${this._boxStyle ?? ''}; background: transparent; background-color: transparent; background-image: none; border: none; box-shadow: none;`);
         this._groups.forEach((group, index) => group.actor.set_style(
             `${group.style ?? ''}; ${index === 1 ? 'background-color: transparent;' : PILL}`));
         // Keep the native panel mapped: the clock must survive maximize/F11.

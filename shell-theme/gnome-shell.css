@@ -4,10 +4,12 @@
 
 /* Panel (top bar) */
 #panel {
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: transparent;
+  background-image: none;
+  box-shadow: none;
   font-family: 'Inter', sans-serif;
   height: 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border: none;
 }
 
 #panel .panel-button {
