@@ -42,7 +42,10 @@ There is no permanent player polling or extra player-proxy listener tree.
 
 `gnome-extensions disable nothingos-panel-zones@local` restores original styles,
 clipping, visibility and the normal full-width panel strut/fullscreen policy.
-It releases signals, timers, D-Bus subscription and any compositing hold.
+It releases signals, timers, D-Bus subscription and its paired compositing hold.
+The persistent clock is a Shell overlay even in maximized windows, so the hold
+stays active throughout the controller lifetime rather than only in fullscreen.
+This prevents direct scanout from bypassing the clock/panel painting.
 Hide Top Bar is not automatically re-enabled: restore that previous user choice
 explicitly from the private installation backup if desired. The old compatibility
 patch remains inert while Hide Top Bar is disabled.

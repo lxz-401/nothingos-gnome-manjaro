@@ -212,7 +212,10 @@ export default class PanelZones extends Extension {
         }
         this._syncCenter(hovered === 1 ||
             (Main.modalCount > 0 && this._lastZone === 1) || Main.overview.visible);
-        const composite = Boolean(monitor.inFullscreen);
+        // The persistent clock is an overlay even on ordinary/maximized
+        // windows. Letting those windows use direct scanout can bypass Shell's
+        // painting just as fullscreen does. Hold compositing until disable().
+        const composite = true;
         if (composite !== this._compositing) {
             if (composite)
                 global.compositor.disable_unredirect();

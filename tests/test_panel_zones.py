@@ -64,6 +64,7 @@ assert.equal(left.opacity,0);assert.equal(right.opacity,0);assert.equal(center.o
 assert.equal(clock.visible,true);assert.equal(media.visible,false);assert.equal(extra.visible,false);
 assert(center.style.includes('background-color: transparent'));
 assert.equal(layout.options.affectsStruts,false);assert.equal(layout.options.trackFullscreen,false);
+assert.equal(disables,1,'persistent clock acquires compositing with no fullscreen window');
 assert.deepEqual(left.clip,[0,0,0,0]);
 // Metadata storms must not queue UI work or player lookups.
 for(let i=0;i<1000;i++)statusCallback(null,null,null,null,null,{deep_unpack:()=>['player',{Metadata:{}},[]]});
@@ -87,10 +88,11 @@ media.playerProxy={get playbackStatus(){throw new Error('player closed');}};exte
 // Removing/disabling Media Controls leaves a visible clock and no stale pill.
 delete panel.statusArea['Media Controls'];extension._sync();assert(clock.visible);assert.equal(media.visible,false);
 layout.primaryMonitor.inFullscreen=true;extension._sync();extension._sync();assert.equal(disables,1);assert(clock.visible);
-layout.primaryMonitor.inFullscreen=false;extension._sync();assert.equal(enables,1);
+layout.primaryMonitor.inFullscreen=false;extension._sync();assert.equal(enables,0,'leaving fullscreen must not release the visible clock overlay');
 for(let i=0;i<1000;i++)extension._queue();
 assert(timers.size<=3,'one motion timer plus at most two per-side hide timers');
 extension.disable();assert.equal(timers.size,0);assert.equal(subscription,null);
+assert.equal(disables,1);assert.equal(enables,1,'disable releases exactly the acquired compositing hold');
 assert.equal(panel.style,'original');assert.equal(layout.panelBox.style,'original');
 assert.equal(layout.options.affectsStruts,true);assert.equal(layout.options.trackFullscreen,true);
 for(const actor of [left,center,right,media,clock,extra]){assert.equal(actor.style,'original');assert.equal(actor.opacity,255);assert.equal(actor.visible,true);assert.equal(actor.signals.size,0);}
