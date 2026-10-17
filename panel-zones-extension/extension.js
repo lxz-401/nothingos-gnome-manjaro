@@ -28,7 +28,7 @@ export default class PanelZones extends Extension {
         this._groups = [Main.panel._leftBox, Main.panel._centerBox, Main.panel._rightBox]
             .map(actor => ({actor, style: actor.get_style(),
                 opacity: actor.opacity, translation: actor.translation_y,
-                clip: actor.has_clip() ? actor.get_clip() : null,
+                clip: actor.has_clip ? actor.get_clip() : null,
                 shown: null}));
         Main.panel.set_style(`${this._panelStyle ?? ''}; background-color: transparent; border: none; box-shadow: none;`);
         for (const group of this._groups)

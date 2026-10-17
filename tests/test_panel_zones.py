@@ -35,7 +35,7 @@ class Actor {
     constructor(left=0,width=100) { this.left=left;this.width=width;this.height=32;this.opacity=255;this.translation_y=0;this.style='original';this.signals=new Map(); }
     connect(name,fn) { const id=next++;this.signals.set(id,[name,fn]);return id; }
     disconnect(id) { assert(this.signals.delete(id)); }
-    has_clip() { return !!this.clip; }
+    get has_clip() { return !!this.clip; }
     get_clip() { return this.clip; }
     set_clip(...clip) { this.clip=clip; }
     remove_clip() { this.clip=null; }
