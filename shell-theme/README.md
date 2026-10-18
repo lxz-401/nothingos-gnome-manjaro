@@ -35,3 +35,7 @@ menu, Alt+Tab, the app grid/folder and the volume or brightness OSD. Check hover
 keyboard focus, disabled controls and notification actions. Authentication and
 session dialogs use the shared control palette; cancel them after inspection.
 A successful CSS parse alone does not establish visual correctness.
+
+Alt+Tab preview dimensions are controlled by Shell JavaScript, not this CSS.
+The independent `alt-tab-extension/` component enlarges the actual window
+previews to 192 logical pixels; see its README for installation.

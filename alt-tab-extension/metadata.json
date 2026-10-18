@@ -1,0 +1,7 @@
+{
+  "uuid": "nothingos-window-previews@local",
+  "name": "NothingOS Larger Window Previews",
+  "description": "192px Alt+Tab window previews with native navigation and aspect ratio.",
+  "shell-version": ["51"],
+  "version": 1
+}

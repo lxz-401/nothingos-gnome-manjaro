@@ -167,3 +167,12 @@ Only visible elements receive backgrounds, including in the center. This mode
 supersedes the earlier Hide Top Bar maximize patch and has no whole-panel slide.
 Updates require Logout → Login to replace cached GJS modules. See its README
 for restore behavior, media-update limits and isolated regression verification.
+
+## Larger Alt+Tab previews
+
+Install `alt-tab-extension/` as the user extension
+`nothingos-window-previews@local`, then enable it and log out/in if GNOME has
+not discovered it yet. It increases GNOME 51 window previews from 128 to 192
+logical pixels, keeping aspect ratio, DPI and native navigation. Panel Zones
+can remain disabled. The NothingOS export profile includes this extension.
+See `alt-tab-extension/README.md` for tuning and validation.
