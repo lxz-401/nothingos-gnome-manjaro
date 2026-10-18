@@ -197,7 +197,7 @@ logout/login; a service restart alone does not reproduce the startup race.
 ## Centered clock layout
 
 `conky/clock.conf` uses `top_middle`, zero horizontal offset, a 640px content
-width and a 230px top gap. Inter Light 72pt displays the time; the date and
+width and a 130px top gap. Inter Light 120pt displays the time; the date and
 system lines remain small. This placement is tuned for a 1920x1080 desktop
 with the centered NOTHING wordmark below the clock. For a different wallpaper
 or display height, adjust `gap_y` rather than shifting the horizontal center.
