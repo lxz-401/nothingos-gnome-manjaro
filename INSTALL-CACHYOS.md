@@ -193,3 +193,12 @@ The helper never changes workspaces, overview state or window stacking.
 Readiness and timeout messages are logged in
 `journalctl --user -u nothingos-conky.service`. After deploying, test one real
 logout/login; a service restart alone does not reproduce the startup race.
+
+## Centered clock layout
+
+`conky/clock.conf` uses `top_middle`, zero horizontal offset, a 640px content
+width and a 230px top gap. Inter Light 72pt displays the time; the date and
+system lines remain small. This placement is tuned for a 1920x1080 desktop
+with the centered NOTHING wordmark below the clock. For a different wallpaper
+or display height, adjust `gap_y` rather than shifting the horizontal center.
+The user's wallpaper is not bundled or changed by this config.
