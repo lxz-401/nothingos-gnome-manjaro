@@ -1,34 +1,34 @@
 [colors.bright]
-black = "0x626262"
-blue = "0x87d7ff"
-cyan = "0xafeeee"
-green = "0xffffff"
-magenta = "0xffafff"
-red = "0xff8787"
+black = "0x858585"
+blue = "0xa8c7ff"
+cyan = "0xa3f3e6"
+green = "0x71ffcd"
+magenta = "0xe1b5ff"
+red = "0xff9090"
 white = "0xffffff"
-yellow = "0xffffaf"
+yellow = "0xffe69a"
 
 [colors.cursor]
-cursor = "0xffffff"
-text = "0x0f0f0f"
+cursor = "0x45ffbc"
+text = "0x111111"
 
 [colors.normal]
-black = "0x1a1a1a"
-blue = "0x5fafff"
-cyan = "0x87ffff"
-green = "0xff5f5f"
-magenta = "0xff87ff"
-red = "0xff5f5f"
-white = "0xd0d0d0"
-yellow = "0xffff87"
+black = "0x242424"
+blue = "0x82aaff"
+cyan = "0x7fdbca"
+green = "0x45ffbc"
+magenta = "0xc792ea"
+red = "0xff6b6b"
+white = "0xe6e6e6"
+yellow = "0xe8cd7e"
 
 [colors.primary]
-background = "0x363636"
-foreground = "0xfafafa"
+background = "0x111111"
+foreground = "0xf5f5f5"
 
 [colors.selection]
-background = "0xffffff"
-text = "0x0f0f0f"
+background = "0x245c49"
+text = "0xffffff"
 
 [cursor]
 blink_interval = 500
@@ -63,7 +63,7 @@ multiplier = 3
 blur = true
 decorations = "none"
 dynamic_title = true
-opacity = 0.85
+opacity = 0.96
 startup_mode = "Windowed"
 
 [window.padding]
