@@ -13,6 +13,9 @@ cleanup() {
 }
 trap cleanup EXIT
 trap 'exit 0' INT TERM
+# Login can start this service while Shell is still placing desktop actors.
+# Do not create windows against an unready compositor or transient geometry.
+python3 "$config_dir/wait-for-desktop.py"
 for block in clock cpu memory storage network; do
     "$binary" -c "$config_dir/$block.conf" &
     children+=("$!")

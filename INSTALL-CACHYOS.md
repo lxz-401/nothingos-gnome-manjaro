@@ -176,3 +176,20 @@ not discovered it yet. It increases GNOME 51 window previews from 128 to 192
 logical pixels, keeping aspect ratio, DPI and native navigation. Panel Zones
 can remain disabled. The NothingOS export profile includes this extension.
 See `alt-tab-extension/README.md` for tuning and validation.
+
+## Conky starts but is invisible after login
+
+A running process and `drawing to created window` messages only confirm X11
+window creation; they do not prove that Shell presents it on the desktop.
+If restarting the service restores visibility after login, startup ordering is
+a likely cause. `run-blocks.sh` now runs `wait-for-desktop.py` before starting
+any blocks. It waits for the X11 compositor and WM, valid screen size and a
+three-second stable desktop/overview state (up to 45 seconds). No unready window
+is launched on timeout; the service's existing failure/restart policy applies.
+
+Deploy the helper alongside the runner. It needs Python 3 and libX11; GNOME
+sessions also use the existing PyGObject/Gio dependency for the Shell probe.
+The helper never changes workspaces, overview state or window stacking.
+Readiness and timeout messages are logged in
+`journalctl --user -u nothingos-conky.service`. After deploying, test one real
+logout/login; a service restart alone does not reproduce the startup race.
