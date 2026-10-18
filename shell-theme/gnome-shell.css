@@ -139,68 +139,6 @@
   color: #45ffbc;
 }
 
-/* Notifications */
-.notification-banner {
-  background-color: rgba(0, 0, 0, 0.85);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.notification-banner .notification-actions {
-  spacing: 8px;
-}
-
-.notification-banner .notification-button {
-  border-radius: 20px;
-  padding: 4px 12px;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-}
-
-.notification-banner .notification-button:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-}
-
-.notification-banner .notification-button:active {
-  background-color: rgba(69, 255, 188, 0.15);
-  color: #45ffbc;
-}
-
-/* Calendar */
-.calendar {
-  border-radius: 12px;
-  padding: 8px;
-  background-color: rgba(0, 0, 0, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.calendar-month-label {
-  font-weight: bold;
-  color: #ffffff;
-}
-
-.calendar-day-base {
-  font-size: 9pt;
-  border-radius: 9999px;
-  text-align: center;
-}
-
-.calendar-day-base:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.calendar-day-base:active {
-  background-color: rgba(69, 255, 188, 0.15);
-  color: #45ffbc;
-}
-
-.calendar-today {
-  font-weight: bold;
-  color: #45ffbc;
-  background-color: rgba(69, 255, 188, 0.15);
-}
-
 /* Quick Settings: style both halves of GNOME's split toggles. */
 .quick-settings {
   padding: 16px;
@@ -293,4 +231,238 @@
   color: #ffffff;
   -barlevel-active-background-color: #45ffbc;
   -barlevel-background-color: #3a3a3a;
+}
+
+/* Shared Shell surfaces. Native GNOME geometry is kept for scaling and RTL. */
+.popup-menu, .modal-dialog, .osd-window, .switcher-list,
+.app-folder-dialog, .message {
+  font-family: 'Inter', sans-serif;
+  color: #f5f5f5;
+}
+.popup-menu-content, .candidate-popup-content, .datemenu-popover,
+.modal-dialog, .osd-window, .switcher-list, .app-folder-dialog {
+  background-color: #111111;
+  background-image: none;
+  border: 1px solid #303030;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.35);
+}
+.popup-menu-item, .popup-sub-menu .popup-menu-item {
+  color: #f5f5f5;
+  background-color: transparent;
+  border-radius: 12px;
+}
+.popup-menu-item:hover, .popup-menu-item:focus,
+.popup-menu-item:selected, .popup-menu-item:checked,
+.popup-sub-menu .popup-menu-item:hover,
+.popup-sub-menu .popup-menu-item:focus {
+  background-color: #292929;
+  color: #ffffff;
+}
+.popup-menu-item:active, .popup-sub-menu .popup-menu-item:active {
+  background-color: #245c49;
+  color: #ffffff;
+}
+.popup-menu-item:insensitive, .popup-sub-menu .popup-menu-item:insensitive {
+  color: #888888;
+}
+.popup-sub-menu, .quick-toggle-menu, .quick-toggle-menu:insensitive {
+  background-color: #1b1b1b;
+  color: #f5f5f5;
+  border: 1px solid #303030;
+  border-radius: 12px;
+  box-shadow: none;
+}
+.popup-separator-menu-item .popup-separator-menu-item-separator {
+  background-color: #383838;
+}
+
+/* Shared controls, including session/authentication dialogs and menu actions. */
+.button, .icon-button, .modal-dialog-button,
+.message .message-header .message-close-button,
+.message .message-header .message-expand-button,
+.message-notification-group .message-collapse-button {
+  background-color: #242424;
+  color: #f5f5f5;
+  border-radius: 12px;
+  box-shadow: none;
+}
+.button:hover, .icon-button:hover, .modal-dialog-button:hover,
+.message .message-header .message-close-button:hover,
+.message .message-header .message-expand-button:hover,
+.message-notification-group .message-collapse-button:hover {
+  background-color: #333333;
+  color: #ffffff;
+}
+.button:active, .icon-button:active, .modal-dialog-button:active {
+  background-color: #404040;
+}
+.button:focus, .icon-button:focus, .modal-dialog-button:focus,
+.popup-menu-item:focus {
+  box-shadow: inset 0 0 0 2px #45ffbc !important;
+}
+.button.default, .button.default:hover, .modal-dialog-button:default,
+.quick-toggle-menu .header .icon.active {
+  background-color: #45ffbc;
+  color: #062419;
+}
+.button.destructive-action, .button.destructive-action:hover {
+  background-color: #b92d3d;
+  color: #ffffff;
+}
+.button:insensitive, .icon-button:insensitive, .modal-dialog-button:insensitive {
+  color: #888888;
+  background-color: #1b1b1b;
+}
+StEntry {
+  background-color: #1b1b1b;
+  color: #f5f5f5;
+  border: 1px solid #383838;
+  border-radius: 12px;
+  selection-background-color: #245c49;
+  selected-color: #ffffff;
+}
+StEntry:focus {
+  border-color: #45ffbc;
+  box-shadow: inset 0 0 0 1px #45ffbc !important;
+}
+.toggle-switch:checked, .toggle-switch:checked:hover {
+  background-color: #45ffbc;
+  color: #062419;
+}
+.toggle-switch:checked .handle {
+  background-color: #062419;
+}
+.check-box:checked StIcon,
+.check-box:checked:hover StIcon, .check-box:checked:active StIcon {
+  background-color: #45ffbc;
+  color: #062419;
+}
+.slider {
+  color: #f5f5f5;
+  -barlevel-active-background-color: #45ffbc;
+  -barlevel-background-color: #3a3a3a;
+}
+.url-highlighter { link-color: #71ffcd; }
+
+/* Quick Settings submenus: Wi-Fi, Bluetooth, power and audio devices. */
+.quick-toggle-menu .header .icon {
+  background-color: #303030;
+  color: #f5f5f5;
+}
+.quick-toggle-menu .header .icon.active {
+  background-color: #45ffbc;
+  color: #062419;
+}
+.quick-toggle-menu .device-subtitle {
+  color: #b0b0b0;
+}
+.quick-slider .slider-bin {
+  background-color: #242424;
+  border-radius: 12px;
+}
+.quick-slider .slider-bin:focus {
+  box-shadow: inset 0 0 0 2px #45ffbc !important;
+}
+.background-apps-quick-toggle {
+  background-color: #1b1b1b;
+  color: #f5f5f5;
+}
+
+/* Date menu, calendar, event/weather cards and GNOME 51 notification stacks. */
+.datemenu-today-button, .events-button, .world-clocks-button, .weather-button,
+.calendar, .message, .notification-banner {
+  background-color: #1b1b1b;
+  color: #f5f5f5;
+  border: 1px solid #303030;
+  border-radius: 12px;
+  box-shadow: none;
+}
+.datemenu-today-button:hover, .events-button:hover,
+.world-clocks-button:hover, .weather-button:hover {
+  background-color: #292929;
+}
+.calendar { padding: 8px; }
+.calendar .calendar-month-header .calendar-month-label {
+  color: #f5f5f5 !important;
+}
+.calendar .calendar-day, .calendar .calendar-month-header .pager-button {
+  color: #f5f5f5;
+  background-color: transparent;
+}
+.calendar .calendar-day:hover, .calendar .calendar-month-header .pager-button:hover {
+  background-color: #333333;
+}
+.calendar .calendar-day:focus, .calendar .calendar-month-header .pager-button:focus {
+  box-shadow: inset 0 0 0 2px #45ffbc !important;
+}
+.calendar .calendar-day.calendar-weekend { color: #b8b8b8; }
+.calendar .calendar-day.calendar-other-month { color: #888888; }
+.calendar .calendar-day.calendar-today,
+.calendar .calendar-day.calendar-today:hover {
+  background-color: #45ffbc;
+  color: #062419 !important;
+}
+.calendar .calendar-week-number {
+  background-color: #292929;
+  color: #b0b0b0;
+}
+.message-list { border-color: #303030; }
+.message-list .message-list-placeholder,
+.message .message-header,
+.message .message-header .message-header-content .event-time,
+.events-button .events-box .events-title,
+.events-button .events-box .events-list .event-box .event-time,
+.events-button .events-box .events-list .event-placeholder,
+.world-clocks-button .world-clocks-header,
+.world-clocks-button .world-clocks-grid .world-clocks-timezone,
+.weather-button .weather-box .weather-header-box .weather-header {
+  color: #b0b0b0;
+}
+.message:second-in-stack { background-color: #191919; }
+.message:lower-in-stack { background-color: #161616; }
+.message-media-control:hover { background-color: #333333; }
+.message-media-control:active { background-color: #245c49; color: #ffffff; }
+
+/* Volume/brightness OSD and Alt+Tab. Keep native size and display placement. */
+.osd-window .level {
+  -barlevel-background-color: #3a3a3a;
+  -barlevel-active-background-color: #45ffbc;
+  -barlevel-overdrive-color: #e85968;
+}
+.osd-monitor-label {
+  background-color: #45ffbc;
+  color: #062419;
+}
+.switcher-list .item-box {
+  background-color: transparent;
+  color: #f5f5f5;
+  border-radius: 12px;
+}
+.switcher-list .item-box:hover { background-color: #292929; }
+.switcher-list .item-box:selected, .switcher-list .item-box:focus,
+.switcher-list .item-box:highlighted {
+  background-color: #193b2f;
+  box-shadow: inset 0 0 0 2px #45ffbc !important;
+}
+.switcher-list .separator { background-color: #383838; }
+
+/* Current app-grid selectors and folders (legacy app-well rules remain above). */
+.overview-tile, .app-folder-dialog .overview-tile {
+  color: #f5f5f5;
+  border-radius: 16px;
+}
+.app-folder { background-color: #242424; border-radius: 16px; }
+.overview-tile:hover, .app-folder:hover,
+.app-folder-dialog .overview-tile:hover { background-color: #333333; }
+.overview-tile:focus, .overview-tile:selected, .overview-tile:checked,
+.app-folder:focus, .app-folder:selected, .app-folder:checked,
+.app-folder-dialog .overview-tile:focus {
+  background-color: #193b2f;
+  box-shadow: inset 0 0 0 2px #45ffbc !important;
+}
+.app-grid-running-dot { background-color: #45ffbc; }
+.app-folder-dialog .page-navigation-arrow {
+  background-color: #242424;
+  color: #f5f5f5;
 }

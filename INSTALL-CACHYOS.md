@@ -11,6 +11,12 @@ files, symlinks and their resolved contents before installing.
   `~/.config/gtk-4.0/gtk.css` and `gtk-dark.css` after backing up old overrides.
 - Install `shell-theme/gnome-shell.css` under `NothingOS-Shell/gnome-shell/`.
   Enable the GNOME 51 User Themes extension and select NothingOS-Shell.
+  The Shell stylesheet covers Quick Settings and device submenus, the date menu,
+  calendar and notification stacks, Alt+Tab, volume/brightness OSD, Shell dialogs,
+  and app-grid folders. It uses Inter, dark surfaces and mint `#45ffbc` focus.
+  GTK application theme selection and Panel Zones activation are independent.
+  Existing local panel height and quick-toggle corner preferences can be kept.
+  See `shell-theme/README.md` for validation and reload instructions.
 - Run `./install.sh` to install and automatically select WhiteSur icons.
   It uses the official pinned source, preserves previous WhiteSur files/icon
   selection, and respects XDG data/state directories. `--no-apply` installs
