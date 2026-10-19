@@ -1,6 +1,8 @@
 """Real GTK dialog behavior; opt in on an isolated Broadway/X11 display."""
 import importlib.util
 import os
+import subprocess
+import sys
 from pathlib import Path
 import tempfile
 import unittest
@@ -87,3 +89,30 @@ class DialogTest(unittest.TestCase):
             self.assertEqual(item['text'], 'Tahrirlangan matn\nIkkinchi qator')
             self.assertEqual(item['id'], note_id)
             self.assertEqual(item['key'], 'test:reader')
+
+
+    def test_widget_cli_starts_in_fresh_process_without_gtk_preload(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'nothingos/reminders.json'
+            note_id = notes.mutate(path, 'add', 'Fresh CLI viewer')['item']['id']
+            code = r"""
+import runpy, sys
+from gi.repository import GLib
+# Do not import Gtk/Gdk before the real CLI: that masked a GTK 3/4 conflict.
+def close_viewer():
+    from gi.repository import Gtk
+    for window in Gtk.Window.list_toplevels():
+        if isinstance(window, Gtk.Dialog):
+            window.response(Gtk.ResponseType.CLOSE)
+    return False
+GLib.timeout_add(150, close_viewer)
+script, note_id = sys.argv[1:]
+sys.argv = [script, 'show', note_id]
+runpy.run_path(script, run_name='__main__')
+"""
+            result = subprocess.run([sys.executable, '-c', code, str(SCRIPT), note_id],
+                env={**os.environ, 'XDG_DATA_HOME': directory},
+                capture_output=True, text=True, timeout=8)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertNotIn('PyGIWarning', result.stderr)
+            self.assertEqual(notes.read(path)[0]['text'], 'Fresh CLI viewer')
