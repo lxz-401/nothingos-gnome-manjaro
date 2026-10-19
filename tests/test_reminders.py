@@ -111,5 +111,45 @@ class ReminderTests(unittest.TestCase):
         self.assertEqual(json.loads(args[0][-1].split('=', 1)[1]), notes.read(self.path))
 
 
+    def test_edit_preserves_id_key_and_other_notes(self):
+        first = notes.mutate(self.path, 'add', 'Original', key='task:note')['item'].copy()
+        other = notes.mutate(self.path, 'add', 'Keep')['item'].copy()
+        text = 'To‘liq matn <b>literal</b> $(touch /tmp/no)\nKeyingi qator'
+        result = notes.mutate(self.path, 'update', first['id'], text=text,
+                              expected_text='Original')
+        self.assertTrue(result['changed'])
+        self.assertEqual(result['item'], {**first, 'text': text})
+        self.assertEqual(notes.read(self.path)[1], other)
+        self.assertFalse(notes.mutate(self.path, 'update', first['id'], text=text)['changed'])
+
+    def test_edit_never_resurrects_deleted_notes_or_overwrites_concurrent_edit(self):
+        item = notes.mutate(self.path, 'add', 'Original')['item'].copy()
+        notes.mutate(self.path, 'update', item['id'], text='Agent changed it')
+        with self.assertRaises(ValueError):
+            notes.mutate(self.path, 'update', item['id'], text='Stale edit', expected_text='Original')
+        self.assertEqual(notes.read(self.path)[0]['text'], 'Agent changed it')
+        notes.mutate(self.path, 'delete', item['id'])
+        with self.assertRaises(ValueError):
+            notes.mutate(self.path, 'update', item['id'], text='Stale edit')
+        self.assertEqual(notes.read(self.path), [])
+
+    def test_invalid_edit_preserves_existing_text(self):
+        item = notes.mutate(self.path, 'add', 'Original')['item'].copy()
+        for text in ['', '  ', 'x' * 2001]:
+            with self.subTest(text_length=len(text)), self.assertRaises(ValueError):
+                notes.mutate(self.path, 'update', item['id'], text=text)
+        self.assertEqual(notes.read(self.path)[0]['text'], 'Original')
+
+    def test_agent_interface_cannot_open_gui(self):
+        result = subprocess.run([sys.executable, str(SCRIPT), '--json', 'show', 'a' * 32],
+                                capture_output=True, text=True, timeout=5)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn('only available interactively', result.stderr)
+
+    def test_invalid_view_id_is_rejected_before_loading_gtk(self):
+        with self.assertRaises(ValueError):
+            notes.show_note(self.path, 'not-an-id; touch /tmp/no')
+
+
 if __name__ == '__main__':
     unittest.main()

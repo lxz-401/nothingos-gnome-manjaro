@@ -246,3 +246,17 @@
 .reminder-add label, .reminder-delete label {
   font-weight: 500;
 }
+
+/* Text opens the reader; deletion stays a separate target. */
+.reminder-open {
+  background-image: none;
+  background-color: transparent;
+  color: #171717;
+  border: none;
+  box-shadow: none;
+  text-shadow: none;
+  padding: 2px 4px;
+  border-radius: 6px;
+}
+.reminder-open:hover { background-color: #e2e2e2; }
+.reminder-open:focus { box-shadow: inset 0 0 0 1px #245c49; }

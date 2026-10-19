@@ -135,8 +135,13 @@ Conky, Eww artwork and the theme are unchanged.
 
 The former quote card is now **Eslatmalar**. Click **+** to enter a note in a
 small Zenity dialog; click **×** beside a note to delete that note. Long lists
-scroll inside the card and hovering a truncated note shows the full text.
-Install `zenity` and Python 3, and copy `scripts/reminders.py` as an executable
+scroll inside the card. Click a note's text to open a 480x320 GTK reader with
+wrapped, selectable full text and vertical scrolling. Use **Tahrirlash** then
+**Saqlash** to edit it; **Yopish**, **Bekor qilish** or Escape closes the reader
+without saving an unfinished edit. Repeated clicks on the same note do not
+open duplicate readers. Concurrent edits/deletions are detected on save rather
+than overwritten or resurrected. Notes retain their IDs and agent task keys.
+Install `zenity`, Python 3, PyGObject and GTK 3, and copy `scripts/reminders.py` as an executable
 alongside the updated `eww.yuck` and `eww.css`. The existing `quote-of-the-day`
 window ID is retained for autostart and screenshot integration.
 
@@ -146,7 +151,11 @@ data, not repository files. `quotes.txt` is preserved but no longer polled.
 For command-line use: `scripts/reminders.py list`, `scripts/reminders.py add
 "note text"`, or `scripts/reminders.py delete ID`. Widget changes update
 immediately, with a 10-second poll as a fallback. Run `python3 tests/test_reminders.py`
-for persistence, concurrent updates and text-handling checks.
+for persistence, concurrent updates and text-handling checks. The widget uses
+`scripts/reminders.py show ID` for the reader; the agent `--json` interface
+rejects GUI commands and remains noninteractive. `tests/test_reminders_dialog.py`
+exercises the real GTK reader with fixture data when `NOTHINGOS_TEST_GTK=1` is
+set on an isolated X11/Broadway display.
 
 ### AI agents
 

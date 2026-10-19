@@ -91,8 +91,11 @@
       (box :orientation "v" :space-evenly false :spacing 4
         (for reminder in REMINDERS
           (box :class "reminder-row" :space-evenly false :spacing 6
-            (label :class "reminder-text" :text "${reminder.text}"
-                   :tooltip "${reminder.text}" :hexpand true :xalign 0 :limit-width 25)
+            (button :class "reminder-open" :hexpand true
+                    :tooltip "To‘liq eslatmani ochish"
+                    :onclick "scripts/reminders.py show ${reminder.id} >/dev/null 2>&1 &"
+              (label :class "reminder-text" :text "${reminder.text}"
+                     :xalign 0 :limit-width 25))
             (button :class "reminder-delete" :tooltip "Eslatmani o‘chirish"
                     :timeout "5s" :onclick "scripts/reminders.py delete ${reminder.id}" "×")))))))
 
