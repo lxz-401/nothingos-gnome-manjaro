@@ -466,3 +466,95 @@ StEntry:focus {
   background-color: #242424;
   color: #f5f5f5;
 }
+
+/* BEGIN NothingOS lock screen */
+/* Keep GNOME's background, scaling, layout and authentication flow intact. */
+.unlock-dialog {
+  color: #f5f5f5;
+  font-family: 'Inter', sans-serif;
+  background-color: transparent;
+}
+.unlock-dialog-clock {
+  color: #f5f5f5;
+  spacing: 12px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+.unlock-dialog-clock .unlock-dialog-clock-time {
+  font-family: 'Inter', sans-serif;
+  font-size: 8.2em;
+  font-weight: 300;
+}
+.unlock-dialog-clock .unlock-dialog-clock-date {
+  color: #d0d0d0;
+  font-size: 1.2em;
+  font-weight: 400;
+}
+.unlock-dialog-clock .unlock-dialog-clock-hint {
+  color: #b8b8b8;
+  background-color: rgba(17, 17, 17, 0.75);
+  border: 1px solid #303030;
+  border-radius: 16px;
+  font-weight: 400;
+}
+.unlock-dialog .login-dialog-prompt-entry {
+  color: #f5f5f5;
+  background-color: #1b1b1b;
+  border: 1px solid #383838;
+  border-radius: 14px;
+  selection-background-color: #245c49;
+  selected-color: #ffffff;
+}
+.unlock-dialog .login-dialog-prompt-entry:hover {
+  background-color: #242424;
+}
+.unlock-dialog .login-dialog-prompt-entry:focus {
+  border-color: #45ffbc;
+  box-shadow: inset 0 0 0 1px #45ffbc;
+}
+.unlock-dialog .login-dialog-prompt-entry:insensitive {
+  color: #888888;
+  background-color: #171717;
+  border-color: #303030;
+}
+.unlock-dialog .login-dialog-prompt-entry StLabel.hint-text {
+  color: #a0a0a0;
+}
+.unlock-dialog .user-widget .user-widget-label {
+  color: #f5f5f5;
+}
+.unlock-dialog .user-widget .user-icon {
+  color: #f5f5f5;
+  background-color: rgba(27, 27, 27, 0.9);
+}
+.unlock-dialog .login-dialog-button {
+  color: #f5f5f5;
+  background-color: #242424;
+  box-shadow: none;
+}
+.unlock-dialog .login-dialog-button:hover {
+  background-color: #333333;
+}
+.unlock-dialog .login-dialog-button:focus {
+  box-shadow: inset 0 0 0 2px #45ffbc;
+}
+.unlock-dialog .login-dialog-button:insensitive {
+  color: #888888;
+  background-color: #1b1b1b;
+}
+.unlock-dialog-notifications-container .message,
+.unlock-dialog-notifications-container .unlock-dialog-notification-source {
+  color: #f5f5f5;
+  background-color: rgba(27, 27, 27, 0.94);
+  border: 1px solid #383838;
+  border-radius: 16px;
+}
+.unlock-dialog-notifications-container .message.critical,
+.unlock-dialog-notifications-container .unlock-dialog-notification-source.critical {
+  background-color: #302023;
+  border-color: #a6414e;
+}
+.unlock-dialog-notification-count-text {
+  color: #45ffbc;
+  background-color: #193b2f;
+}
+/* END NothingOS lock screen */

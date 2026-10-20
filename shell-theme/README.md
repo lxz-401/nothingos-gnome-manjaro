@@ -11,7 +11,8 @@ Native spacing, scaling, RTL layout and control geometry are retained except
 for existing Quick Settings sizing and small calendar padding.
 
 Coverage: panel popovers and device submenus, calendar/date cards, notifications
-and media actions, Shell entries/dialogs, switches, OSD, Alt+Tab and app folders.
+and media actions, Shell entries/dialogs, switches, OSD, Alt+Tab, app folders and
+the session lockscreen.
 No extension enable/disable setting or GTK3 selection is required to apply it.
 
 ## Validate and apply
@@ -39,3 +40,42 @@ A successful CSS parse alone does not establish visual correctness.
 Alt+Tab preview dimensions are controlled by Shell JavaScript, not this CSS.
 The independent `alt-tab-extension/` component enlarges the actual window
 previews to 192 logical pixels; see its README for installation.
+
+## Session lockscreen
+
+The clock uses large, light Inter text, a smaller gray date, charcoal password
+and notification surfaces, and mint keyboard focus. GNOME retains the existing
+background, authentication, notification privacy settings and layout/scaling.
+The system GDM login screen is a separate process and is not modified.
+
+User Themes normally runs only in the `user` session mode and unloads its CSS
+when the screen locks. After validating CSS as above, apply the lockscreen with:
+
+```sh
+python3 shell-theme/apply-lockscreen.py
+```
+
+This requires User Themes installed in the user's extension directory and enabled
+with NothingOS-Shell selected. It merges only the marked lockscreen CSS block,
+preserving local topbar/button overrides, and adds `unlock-dialog` to User Themes'
+`session-modes` metadata. CSS is refreshed by toggling the selected theme setting
+away and back, without changing extension enable/disable choices. GNOME 51 caches
+extension metadata and no longer implements the advertised ReloadExtension
+D-Bus method: **log out and back in once to activate lockscreen support**.
+The helper does not log out or restart Shell. Both original files are backed up
+under `~/.local/state/nothingos/backups/lockscreen-*`. Restore with:
+
+```sh
+python3 shell-theme/apply-lockscreen.py --restore /absolute/path/to/backup
+```
+
+Log out and back in after restoring the extension's original session modes.
+An upstream User Themes update may replace its metadata. Run the helper again
+after such an update. `--no-reload` updates files only for an offline profile;
+the next login loads the metadata. These changes do not add authentication code
+or change which other extensions are allowed to run on the lockscreen.
+
+Verify using Super+L: clock/date size, readability over the existing wallpaper,
+password field keyboard focus, and normal password/fingerprint unlocking. The
+user must unlock their session themselves. Check at the user's text scale and
+monitor size; CSS parsing is not a substitute for that visual check.

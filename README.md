@@ -122,6 +122,10 @@ cp -r conky ~/.config/
 See [INSTALL-CACHYOS.md](INSTALL-CACHYOS.md) for the GTK/Shell directory layout,
 GNOME 51 compatibility extension, and Conky service setup. Back up existing
 application configs before copying them.
+
+For the matching lockscreen clock, password field and notification styling, see
+[Shell theme lockscreen setup](shell-theme/README.md#session-lockscreen).
+The setup backs up current files; log out and back in once after applying it.
 ---
 ### 4. Open widgets and Conky
 ```bash
