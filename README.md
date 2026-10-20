@@ -126,6 +126,10 @@ application configs before copying them.
 For the matching lockscreen clock, password field and notification styling, see
 [Shell theme lockscreen setup](shell-theme/README.md#session-lockscreen).
 The setup backs up current files; log out and back in once after applying it.
+
+For GDM before login, [GDM theme setup](gdm-theme/README.md) uses your current
+wallpaper and system-wide JetBrains Mono, with administrator authentication,
+separate backups and no automatic logout or GDM restart.
 ---
 ### 4. Open widgets and Conky
 ```bash

@@ -1,0 +1,85 @@
+/* NothingOS GDM: visual rules only. Native authentication and layout remain. */
+#lockDialogGroup {
+  background-color: #111111;
+  background-image: url('@WALLPAPER@');
+  background-size: cover;
+  /* St centers background images by default; CSS position keywords are unsupported. */
+}
+.login-dialog {
+  font-family: 'JetBrains Mono', monospace;
+  color: #ffffff;
+  background-color: transparent;
+}
+.login-dialog .user-widget .user-widget-label,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item {
+  font-family: 'JetBrains Mono', monospace;
+  color: #ffffff;
+}
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item {
+  background-color: rgba(27, 27, 27, 0.94);
+  border: 1px solid #383838;
+  border-radius: 16px;
+}
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:hover {
+  background-color: #292929;
+}
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:focus,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:selected {
+  background-color: #193b2f;
+  border-color: #45ffbc;
+  box-shadow: inset 0 0 0 1px #45ffbc;
+}
+.login-dialog .user-widget .user-icon {
+  background-color: rgba(27, 27, 27, 0.94);
+  color: #ffffff;
+}
+.login-dialog .login-dialog-prompt-entry {
+  font-family: 'JetBrains Mono', monospace;
+  color: #ffffff;
+  background-color: #1b1b1b;
+  border: 1px solid #383838;
+  border-radius: 14px;
+  selection-background-color: #245c49;
+  selected-color: #ffffff;
+}
+.login-dialog .login-dialog-prompt-entry:hover { background-color: #242424; }
+.login-dialog .login-dialog-prompt-entry:focus {
+  border-color: #45ffbc;
+  box-shadow: inset 0 0 0 1px #45ffbc;
+}
+.login-dialog .login-dialog-prompt-entry:insensitive {
+  color: #888888;
+  background-color: #171717;
+  border-color: #303030;
+}
+.login-dialog .login-dialog-prompt-entry StLabel.hint-text { color: #aaaaaa; }
+.login-dialog .login-dialog-prompt-label,
+.login-dialog .login-dialog-message-hint,
+.login-dialog .login-dialog-not-listed-label { color: #d0d0d0; }
+.login-dialog .login-dialog-message-warning { color: #ff8995; }
+.login-dialog .login-button,
+.login-dialog .web-login-prompt-button {
+  color: #062419;
+  background-color: #45ffbc;
+  border: 1px solid #45ffbc;
+  border-radius: 14px;
+}
+.login-dialog .login-button:hover,
+.login-dialog .web-login-prompt-button:hover { background-color: #76ffce; }
+.login-dialog .login-button:focus,
+.login-dialog .web-login-prompt-button:focus {
+  box-shadow: inset 0 0 0 2px #ffffff;
+}
+.login-dialog .login-button:insensitive,
+.login-dialog .web-login-prompt-button:insensitive {
+  color: #888888;
+  background-color: #242424;
+  border-color: #383838;
+}
+.login-dialog-button {
+  color: #ffffff;
+  background-color: #242424;
+}
+.login-dialog-button:hover { background-color: #333333; }
+.login-dialog-button:focus { box-shadow: inset 0 0 0 2px #45ffbc; }
+.login-dialog-button:insensitive { color: #888888; background-color: #1b1b1b; }
