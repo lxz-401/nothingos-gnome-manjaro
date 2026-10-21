@@ -57,7 +57,7 @@ class PreparationTests(unittest.TestCase):
                  patch.object(theme, 'image_info', return_value={'format': 'png', 'width': 10, 'height': 10}), \
                  patch.object(theme, 'native_styles', return_value=native), \
                  patch.object(theme, 'validate_css') as validate:
-                bundle = theme.prepare(base / 'bundle', image)
+                bundle = theme.prepare(base / 'bundle', image, blur=0)
             names = {p.name for p in bundle.iterdir()}
             self.assertEqual(names, {*theme.CSS_NAMES, 'wallpaper.png', 'manifest.json'})
             for name in theme.CSS_NAMES:
@@ -69,6 +69,47 @@ class PreparationTests(unittest.TestCase):
             validate.assert_called_once()
             self.assertEqual(resource.read_bytes(), b'original resource')
             self.assertNotIn('gnome-shell-high-contrast.css', names)
+
+    def test_blur_svg_embeds_source_and_scales_effect_to_screen_height(self):
+        import base64
+        source = b'\xff\xd8\xfffixture'
+        svg = theme.blur_svg(source, {'width': 3840, 'height': 2160}, 32)
+        self.assertIn('width="1920" height="1080"', svg)
+        self.assertIn('stdDeviation="64.000000"', svg)
+        self.assertIn('edgeMode="duplicate"', svg)
+        self.assertIn('data:image/jpeg;base64,' + base64.b64encode(source).decode(), svg)
+        self.assertNotIn('file://', svg)
+
+    def test_invalid_blur_rejected_and_zero_keeps_exact_image_bytes(self):
+        for radius in [-1, 129, float('nan'), float('inf')]:
+            with self.subTest(radius=radius), self.assertRaises(ValueError):
+                theme.blur_wallpaper(b'original', {'width': 1, 'height': 1}, radius)
+        with patch.object(theme.subprocess, 'run') as renderer:
+            self.assertEqual(theme.blur_wallpaper(b'original', {}, 0), b'original')
+            renderer.assert_not_called()
+
+    def test_default_blur_changes_only_private_derivative_and_records_effect(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            resource = base / 'native.gresource'
+            resource.write_bytes(b'native')
+            image = base / 'original.jpg'
+            original = b'\xff\xd8\xfffixture'
+            image.write_bytes(original)
+            png = b'\x89PNG\r\n\x1a\nblurred'
+            with patch.object(theme, 'RESOURCE', resource), \
+                 patch.object(theme, 'check_host', return_value='51.1'), \
+                 patch.object(theme, 'check_font'), \
+                 patch.object(theme, 'image_info', return_value={'width': 3840, 'height': 2160}), \
+                 patch.object(theme, 'native_styles', return_value=dict.fromkeys(theme.CSS_NAMES, '/* native */')), \
+                 patch.object(theme, 'validate_css'), \
+                 patch.object(theme, 'blur_wallpaper', return_value=png) as render:
+                bundle = theme.prepare(base / 'bundle', image)
+            render.assert_called_once_with(original, {'width': 3840, 'height': 2160}, 32)
+            self.assertEqual(image.read_bytes(), original)
+            self.assertEqual((bundle / 'wallpaper.png').read_bytes(), png)
+            self.assertEqual(json.loads((bundle / 'manifest.json').read_text())['wallpaper_effect']['blur_px'], 32)
+            theme.read_bundle(bundle)
 
 
 class TransactionTests(unittest.TestCase):

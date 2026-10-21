@@ -1,8 +1,10 @@
 """GNOME 51 GDM resource-overlay preparation and reversible deployment."""
 import ast
+import base64
 import datetime
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -111,14 +113,48 @@ def image_extension(data):
     raise ValueError('Wallpaper bytes are not JPEG, PNG or WebP.')
 
 
-def prepare(output, wallpaper=None):
+def blur_svg(content, info, radius):
+    """Code-native SVG filter, rendered once before installation, with no file references."""
+    width, height = info['width'], info['height']
+    scale = min(1, 1920 / width, 1080 / height)
+    rendered_width = max(1, round(width * scale))
+    rendered_height = max(1, round(height * scale))
+    sigma = radius * height / 1080
+    mime = {'jpg': 'jpeg', 'png': 'png', 'webp': 'webp'}[image_extension(content)]
+    encoded = base64.b64encode(content).decode('ascii')
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{rendered_width}" height="{rendered_height}" '
+            f'viewBox="0 0 {width} {height}">'
+            '<defs><filter id="blur" x="0" y="0" width="100%" height="100%" '
+            'color-interpolation-filters="sRGB">'
+            f'<feGaussianBlur stdDeviation="{sigma:.6f}" edgeMode="duplicate"/>'
+            '</filter></defs>'
+            f'<image width="{width}" height="{height}" preserveAspectRatio="none" '
+            f'href="data:image/{mime};base64,{encoded}" filter="url(#blur)"/></svg>')
+
+
+def blur_wallpaper(content, info, radius):
+    if not math.isfinite(radius) or not 0 <= radius <= 128:
+        raise ValueError('Blur must be a finite number from 0 to 128 pixels.')
+    if radius == 0:
+        return content
+    if shutil.which('rsvg-convert') is None:
+        raise ValueError('rsvg-convert is required for blur; install librsvg or use --blur 0.')
+    result = subprocess.run(['rsvg-convert', '--format=png'],
+                            input=blur_svg(content, info, radius).encode(),
+                            capture_output=True, check=True, timeout=60)
+    if image_extension(result.stdout) != 'png':
+        raise ValueError('Blur renderer did not return a PNG image.')
+    return result.stdout
+
+
+def prepare(output, wallpaper=None, *, blur=32):
     version = check_host()
     check_font()
     image = select_wallpaper(desktop_settings() if wallpaper is None else {}, wallpaper)
     if image.stat().st_size > MAX_IMAGE:
         raise ValueError('Wallpaper exceeds 100 MiB.')
-    image_info(image)
-    content = image.read_bytes()
+    info = image_info(image)
+    content = blur_wallpaper(image.read_bytes(), info, blur)
     name = 'wallpaper.' + image_extension(content)
     resource_hash = digest(RESOURCE.read_bytes())
     styles = native_styles()
@@ -136,7 +172,9 @@ def prepare(output, wallpaper=None):
             raise ValueError('GNOME resources changed during preparation; prepare again.')
         files = {p.name: digest(p.read_bytes()) for p in output.iterdir()}
         manifest = {'format': 1, 'owner': OWNER, 'shell_version': version,
-                    'resource_sha256': resource_hash, 'service': SERVICE, 'files': files}
+                    'resource_sha256': resource_hash, 'service': SERVICE, 'files': files,
+                    'wallpaper_effect': {'blur_px': blur, 'reference_height': 1080,
+                                         'pre_rendered': True}}
         (output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     except Exception:
         for path in output.iterdir():

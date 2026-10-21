@@ -4,11 +4,13 @@ GNOME 51's GDM login screen uses the current desktop wallpaper, white JetBrains
 Mono text, charcoal user/password surfaces and mint focus/login actions. Native
 placement, scaling, accessibility, error feedback and authentication are retained.
 The user-session lockscreen is a separate component under `shell-theme/`.
+The login wallpaper has a strong, pre-rendered Gaussian blur by default.
 
 ## Apply
 
 Requirements: GNOME Shell 51, GDM using `org.gnome.Shell@gdm.service`, Python 3,
 GJS with Gio/St/GdkPixbuf, fontconfig, PolicyKit and system-wide JetBrains Mono.
+Blur additionally requires `rsvg-convert` (provided by librsvg on Arch/CachyOS).
 The current implementation validates the Arch/CachyOS GNOME 51 library layout.
 
 From the repository as your desktop user, run:
@@ -27,6 +29,23 @@ An explicit wallpaper can be selected without changing the desktop setting:
 ```sh
 python3 gdm-theme/nothingos-gdm.py apply --wallpaper '/absolute/path/my wallpaper.jpg'
 ```
+
+### Wallpaper blur
+
+`prepare` and `apply` accept `--blur` from 0 to 128 pixels; the default is **32**.
+The value is normalized to a 1080-pixel screen height. A code-generated SVG
+Gaussian filter embeds the selected image and is rendered once into a PNG,
+bounded to 1920 × 1080 while preserving its aspect ratio. GDM loads that finished
+image; no blur shader or extension runs on the greeter. The source image is
+never overwritten, and its original desktop appearance is unchanged.
+
+```sh
+python3 gdm-theme/nothingos-gdm.py apply --blur 32
+python3 gdm-theme/nothingos-gdm.py apply --blur 0  # unfiltered original image bytes
+```
+
+Blur affects only the background, not the text, buttons or password field.
+The existing installation is backed up before the blurred version replaces it.
 
 The chosen image is a snapshot, copied to a public, root-owned location. It is
 visible to everyone who can see the login screen and no longer depends on an
@@ -82,7 +101,9 @@ python3 gdm-theme/nothingos-gdm.py prepare --output /absolute/path/to/empty-priv
 Tests cover wallpaper selection, private font rejection, payload/source changes,
 scope, symlink/conflict rejection, readable greeter paths under root's private
 umask, backup/restore, failed-install rollback and retaining recovery files when
-rollback fails. GIO overlay lookup and a systemd fixture are also checked on the
+rollback fails. Blur checks cover embedded source data, screen-size scaling,
+invalid strength rejection, zero-strength passthrough, unchanged source image
+bytes and effect metadata. GIO overlay lookup and a systemd fixture are also checked on the
 development machine. A headless GNOME GDM-mode session loaded the overlay with
 no St CSS warnings, but its greeter proxy denied an already logged-in user;
 that preview does not prove real GDM rendering or authentication.
