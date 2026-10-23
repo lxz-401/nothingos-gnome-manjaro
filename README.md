@@ -131,8 +131,9 @@ For GDM before login, [GDM theme setup](gdm-theme/README.md) uses your current
 wallpaper and system-wide JetBrains Mono, with administrator authentication,
 separate backups and no automatic logout or GDM restart.
 
-For a matching editor, see [Neovim theme setup](neovim/README.md): a local
-NothingOS colorscheme with mint accents and optional NitroVim integration.
+For a matching editor, use [NitroVim](https://github.com/lxz-401/NitroVim).
+Its NothingOS theme and Neovim configuration are maintained in that repository;
+see the [theme guide](https://github.com/lxz-401/NitroVim/blob/main/docs/nothingos-theme.md).
 ---
 ### 4. Open widgets and Conky
 ```bash
