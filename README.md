@@ -130,6 +130,9 @@ The setup backs up current files; log out and back in once after applying it.
 For GDM before login, [GDM theme setup](gdm-theme/README.md) uses your current
 wallpaper and system-wide JetBrains Mono, with administrator authentication,
 separate backups and no automatic logout or GDM restart.
+
+For a matching editor, see [Neovim theme setup](neovim/README.md): a local
+NothingOS colorscheme with mint accents and optional NitroVim integration.
 ---
 ### 4. Open widgets and Conky
 ```bash

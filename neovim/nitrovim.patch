@@ -1,0 +1,86 @@
+--- a/lua/nitro/ui/colorschemes.lua
++++ b/lua/nitro/ui/colorschemes.lua
+@@ -1,4 +1,5 @@
+ local themes = {
++  { name = "nothingos", variant = "dark" },
+   { name = "onedark", variant = "darker" },
+   { name = "onedark", variant = "cool" },
+   { name = "onedark", variant = "warm" },
+--- a/lua/nitro/ui/nvimtree.lua
++++ b/lua/nitro/ui/nvimtree.lua
+@@ -262,16 +262,18 @@
+ vim.keymap.set("n", "<leader>o", "<cmd>NvimTreeFocus<CR>",
+   vim.tbl_extend("force", opts, { desc = "Explorer'ga o'tish" }))
+
+-vim.cmd([[
+-  highlight NvimTreeNormal guibg=NONE ctermbg=NONE
+-  highlight NvimTreeNormalNC guibg=NONE ctermbg=NONE
+-  highlight NvimTreeGitNew guifg=#3EEA4D
+-  highlight NvimTreeGitDeleted guifg=#F44747
+-  highlight NvimTreeGitDirty guifg=#F0A500
+-  highlight NvimTreeLiveFilterPrefix guifg=#FFFFFF guibg=#5E81AC gui=bold
+-  highlight NvimTreeLiveFilterValue guifg=#ECEFF4 guibg=#434C5E gui=bold,italic
+-  highlight NvimTreeLiveFilterBorder guifg=#5E81AC guibg=NONE gui=bold
+-]])
++if vim.g.colors_name ~= "nothingos" then
++  vim.cmd([[
++    highlight NvimTreeNormal guibg=NONE ctermbg=NONE
++    highlight NvimTreeNormalNC guibg=NONE ctermbg=NONE
++    highlight NvimTreeGitNew guifg=#3EEA4D
++    highlight NvimTreeGitDeleted guifg=#F44747
++    highlight NvimTreeGitDirty guifg=#F0A500
++    highlight NvimTreeLiveFilterPrefix guifg=#FFFFFF guibg=#5E81AC gui=bold
++    highlight NvimTreeLiveFilterValue guifg=#ECEFF4 guibg=#434C5E gui=bold,italic
++    highlight NvimTreeLiveFilterBorder guifg=#5E81AC guibg=NONE gui=bold
++  ]])
++end
+
+ -- `nvim <papka>` bilan ochilganda daraxtni ko'rsatish
+ vim.api.nvim_create_autocmd("VimEnter", {
+--- a/lua/nitro/ui/transparent.lua
++++ b/lua/nitro/ui/transparent.lua
+@@ -2,6 +2,15 @@
+ if not ok then
+   vim.notify("transparent.nvim not found!", vim.log.levels.ERROR)
+   return
++end
++
++local function clear_panels()
++  for _, prefix in ipairs({ "BufferLine", "NvimTree", "ToggleTerm", "lualine" }) do
++    pcall(transparent.clear_prefix, prefix)
++  end
++  for _, group in ipairs({ "BufferLineOffset", "BufferLineOffsetSeparator" }) do
++    vim.api.nvim_set_hl(0, group, { bg = "NONE", ctermbg = "NONE" })
++  end
+ end
+
+ require("transparent").setup({
+@@ -62,18 +71,8 @@
+     "lualine_a_normal", "lualine_a_insert", "lualine_a_visual", "lualine_a_replace", "lualine_a_command",
+     "lualine_a_terminal"
+   },
+-  on_clear = function() end,
++  on_clear = clear_panels,
+ })
+-
+-pcall(transparent.clear_prefix, "BufferLine")
+-pcall(transparent.clear_prefix, "NvimTree")
+-pcall(transparent.clear_prefix, "ToggleTerm")
+-pcall(transparent.clear_prefix, "lualine")
+-
+-local buffer_offset_groups = { "BufferLineOffset", "BufferLineOffsetSeparator" }
+-for _, group in ipairs(buffer_offset_groups) do
+-  pcall(vim.api.nvim_set_hl, 0, group, { bg = "NONE", ctermbg = "NONE" })
+-end
+
+ local state_file = vim.fn.stdpath("state") .. "/transparent_state.txt"
+
+--- a/lua/nitro/ui/tabs.lua
++++ b/lua/nitro/ui/tabs.lua
+@@ -1,5 +1,5 @@
+ vim.opt.termguicolors = true
+-vim.opt.showtabline = 5
++vim.opt.showtabline = 2
+
+ require("bufferline").setup({
+   options = {
